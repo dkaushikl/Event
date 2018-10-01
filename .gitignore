@@ -1,0 +1,12 @@
+/packages
+/Event.Common/obj
+/Event.Common/bin
+/Event.Core/obj
+/Event.Core/bin
+/Event.Data/obj
+/Event.Data/bin
+/Event.Repository/obj
+/Event.Repository/bin
+/EventApi/obj
+/EventApi/bin
+/.vs
