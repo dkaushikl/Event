@@ -19,5 +19,8 @@ namespace Event.Data
         public long UserId { get; set; }
         public System.DateTime CreatedDate { get; set; }
         public bool IsActive { get; set; }
+    
+        public virtual Event Event { get; set; }
+        public virtual User User { get; set; }
     }
 }

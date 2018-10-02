@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Web.Mvc;
+    using System.Web.Http;
 
     using Event.Core;
     using Event.Repository.Interface;
@@ -12,15 +12,15 @@
     using EventApi.Utility;
 
     [Authorize]
-    public class CompanyController : BaseController
+    public class EventController : BaseController
     {
-        private readonly ICompanyRepository companyRepository;
+        private readonly IEventRepository eventRepository;
 
-        public CompanyController(ICompanyRepository companyRepository) => this.companyRepository = companyRepository;
+        public EventController(IEventRepository eventRepository) => this.eventRepository = eventRepository;
 
         [HttpPost]
-        [Route("api/Company/InsertCompany")]
-        public async Task<Message> AddCompany(CompanyViewModel objCompanyViewModel)
+        [Route("api/Event/InsertEvent")]
+        public async Task<Message> AddEvent(EventViewModel objEventViewModel)
         {
             if (!this.ModelState.IsValid)
             {
@@ -32,22 +32,22 @@
                            };
             }
 
-            var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name);
+            var objEvent = await this.eventRepository.GetEventByName(objEventViewModel.Name);
 
-            if (objCompany)
+            if (objEvent)
             {
                 return new Message
                            {
-                               Description = "Company already exist.",
+                               Description = "Event already exist.",
                                Status = ResponseStatus.Error.ToString(),
                                IsSuccess = false
                            };
             }
 
-            return await this.companyRepository.AddCompany(objCompanyViewModel)
+            return await this.eventRepository.AddEvent(objEventViewModel)
                        ? new Message
                              {
-                                 Description = "Company added successfully.",
+                                 Description = "Event added successfully.",
                                  Status = ResponseStatus.Ok.ToString(),
                                  IsSuccess = true
                              }
@@ -60,8 +60,8 @@
         }
 
         [HttpPost]
-        [Route("api/Company/DeleteCompany")]
-        public async Task<Message> DeleteCompany(Entity objEntity)
+        [Route("api/Event/DeleteEvent")]
+        public async Task<Message> DeleteEvent(Entity objEntity)
         {
             if (string.IsNullOrEmpty(Convert.ToString(objEntity.Id)))
             {
@@ -73,68 +73,68 @@
                            };
             }
 
-            return await this.companyRepository.DeleteCompany(objEntity.Id)
+            return await this.eventRepository.DeleteEvent(objEntity.Id)
                        ? new Message
                              {
-                                 Description = "Company deleted successfully.",
+                                 Description = "Event deleted successfully.",
                                  Status = ResponseStatus.Ok.ToString(),
                                  IsSuccess = true
                              }
                        : new Message
                              {
-                                 Description = "Company not exists.",
+                                 Description = "Event not exists.",
                                  Status = ResponseStatus.Error.ToString(),
                                  IsSuccess = false
                              };
         }
 
         [HttpPost]
-        [Route("api/Company/UpdateCompany")]
-        public async Task<Message> EditCompany(CompanyViewModel objCompanyViewModel)
+        [Route("api/Event/UpdateEvent")]
+        public async Task<Message> EditEvent(EventViewModel objEventViewModel)
         {
             if (!this.ModelState.IsValid)
             {
                 return new Message { Description = "Enter All data", Status = ResponseStatus.Error.ToString() };
             }
 
-            var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name);
+            var objEvent = await this.eventRepository.GetEventByName(objEventViewModel.Name);
 
-            if (objCompany)
+            if (objEvent)
             {
                 return new Message
                            {
-                               Description = "Company already exist.",
+                               Description = "Event already exist.",
                                Status = ResponseStatus.Error.ToString(),
                                IsSuccess = false
                            };
             }
 
-            return await this.companyRepository.EditCompany(objCompanyViewModel)
+            return await this.eventRepository.EditEvent(objEventViewModel)
                        ? new Message
                              {
-                                 Description = "Company updated successfully.",
+                                 Description = "Event updated successfully.",
                                  Status = ResponseStatus.Ok.ToString(),
                                  IsSuccess = true
                              }
                        : new Message
                              {
-                                 Description = "Company not found.",
+                                 Description = "Event not found.",
                                  Status = ResponseStatus.Error.ToString(),
                                  IsSuccess = false
                              };
         }
 
         [HttpGet]
-        [Route("api/Company/GetAllCompany")]
-        public async Task<Response<List<CompanyViewModel>>> GetAllCompany(int pageIndex, int pageSize, int? companyId)
+        [Route("api/Event/GetAllEvent")]
+        public async Task<Response<List<EventViewModel>>> GetAllEvent(int pageIndex, int pageSize, int? eventId)
         {
             var userId = 1;
-            var objResult = await this.companyRepository.GetAllCompany(pageIndex, pageSize, userId, companyId);
+            var objResult = await this.eventRepository.GetAllEvent(pageIndex, pageSize, userId, eventId);
             var data = objResult.Columns.Count > 0
-                           ? Utility.ConvertDataTable<CompanyViewModel>(objResult).ToList()
+                           ? Utility.ConvertDataTable<EventViewModel>(objResult).ToList()
                            : null;
 
-            return new Response<List<CompanyViewModel>>
+            return new Response<List<EventViewModel>>
                        {
                            Data = data,
                            Status = ResponseStatus.Ok.ToString(),

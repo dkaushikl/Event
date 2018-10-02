@@ -14,6 +14,15 @@ namespace Event.Data
     
     public partial class User
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public User()
+        {
+            this.Companies = new HashSet<Company>();
+            this.CompanyMembers = new HashSet<CompanyMember>();
+            this.Events = new HashSet<Event>();
+            this.EventMembers = new HashSet<EventMember>();
+        }
+    
         public long Id { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }
@@ -24,5 +33,14 @@ namespace Event.Data
         public string Gender { get; set; }
         public System.DateTime CreateDate { get; set; }
         public bool IsActive { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Company> Companies { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CompanyMember> CompanyMembers { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Event> Events { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<EventMember> EventMembers { get; set; }
     }
 }

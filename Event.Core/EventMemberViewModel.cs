@@ -2,7 +2,7 @@ namespace Event.Core
 {
     using System;
 
-    public class EventAttendeesViewModel
+    public class EventMemberViewModel
     {
         public DateTime CreatedDate { get; set; }
 
@@ -13,5 +13,7 @@ namespace Event.Core
         public bool IsActive { get; set; }
 
         public long UserId { get; set; }
+
+        public string EventName { get; set; }
     }
 }

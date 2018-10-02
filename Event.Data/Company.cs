@@ -14,6 +14,13 @@ namespace Event.Data
     
     public partial class Company
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Company()
+        {
+            this.CompanyMembers = new HashSet<CompanyMember>();
+            this.Events = new HashSet<Event>();
+        }
+    
         public long Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
@@ -25,5 +32,11 @@ namespace Event.Data
         public System.DateTime CreatedDate { get; set; }
         public long CreatedBy { get; set; }
         public bool IsActive { get; set; }
+    
+        public virtual User User { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CompanyMember> CompanyMembers { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Event> Events { get; set; }
     }
 }

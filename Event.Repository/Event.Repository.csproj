@@ -45,7 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompanyMemberRepository.cs" />
+    <Compile Include="EventMemberRepository.cs" />
+    <Compile Include="EventRepository.cs" />
     <Compile Include="CompanyRepository.cs" />
+    <Compile Include="Interface\ICompanyMemberRepository.cs" />
+    <Compile Include="Interface\IEventMemberRepository.cs" />
+    <Compile Include="Interface\IEventRepository.cs" />
     <Compile Include="Interface\ICompanyRepository.cs" />
     <Compile Include="Interface\IUserRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

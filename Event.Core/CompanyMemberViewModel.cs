@@ -2,7 +2,7 @@ namespace Event.Core
 {
     using System;
 
-    public class CompanyAttendeesViewModel
+    public class CompanyMemberViewModel
     {
         public long CompanyId { get; set; }
 
@@ -13,5 +13,7 @@ namespace Event.Core
         public bool IsActive { get; set; }
 
         public long UserId { get; set; }
+
+        public string Email { get; set; }
     }
 }
