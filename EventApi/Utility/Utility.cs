@@ -26,12 +26,12 @@
 
         public static string Decrypt(string cipherText)
         {
-            const string encryptionKey = "JustBlog";
+            const string EncryptionKey = "event-management";
             var cipherBytes = Convert.FromBase64String(cipherText);
             using (var encryptor = Aes.Create())
             {
                 var pdb = new Rfc2898DeriveBytes(
-                    encryptionKey,
+                    EncryptionKey,
                     new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
                 if (encryptor == null)
                 {
@@ -59,12 +59,12 @@
 
         public static string Encrypt(string clearText)
         {
-            const string encryptionKey = "JustBlog";
+            const string EncryptionKey = "event-management";
             var clearBytes = Encoding.Unicode.GetBytes(clearText);
             using (var encryptor = Aes.Create())
             {
                 var pdb = new Rfc2898DeriveBytes(
-                    encryptionKey,
+                    EncryptionKey,
                     new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
                 if (encryptor == null)
                 {

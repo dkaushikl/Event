@@ -102,9 +102,9 @@
             }
         }
 
-        public async Task<bool> GetCompanyByName(string companyName)
+        public async Task<bool> GetCompanyByName(string companyName, long companyId)
         {
-            var companyExist = await this.entities.Companies.AnyAsync(x => x.Name.ToLower() == companyName.ToLower());
+            var companyExist = await this.entities.Companies.AnyAsync(x => x.Id != companyId && x.Name.ToLower() == companyName.ToLower());
             return companyExist;
         }
     }

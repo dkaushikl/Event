@@ -27,7 +27,7 @@
             var token = authorization.Parameter;
 
             string userId;
-            if (!JwtProvider.ValidateToken(token, out _, out userId))
+            if (!JwtProvider.ValidateToken(token, out var email, out userId))
             {
                 return null;
             }

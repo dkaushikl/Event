@@ -15,6 +15,6 @@
 
         Task<DataTable> GetAllCompany(int pageIndex, int pageSize, int userId, int? companyId);
 
-        Task<bool> GetCompanyByName(string name);
+        Task<bool> GetCompanyByName(string name, long companyId);
     }
 }

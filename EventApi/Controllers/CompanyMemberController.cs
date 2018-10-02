@@ -15,8 +15,13 @@
     public class CompanyMemberController : BaseController
     {
         private readonly ICompanyMemberRepository companyMemberRepository;
+        private readonly IUserRepository userRepository;
 
-        public CompanyMemberController(ICompanyMemberRepository companyMemberRepository) => this.companyMemberRepository = companyMemberRepository;
+        public CompanyMemberController(ICompanyMemberRepository companyMemberRepository, IUserRepository userRepository)
+        {
+            this.companyMemberRepository = companyMemberRepository;
+            this.userRepository = userRepository;
+        }
 
         [HttpPost]
         [Route("api/CompanyMember/InsertCompanyMember")]
@@ -43,6 +48,8 @@
                     IsSuccess = false
                 };
             }
+
+            objCompanyMemberViewModel.UserId = await this.userRepository.GetUserIdByEmail(objCompanyMemberViewModel.Email);
 
             return await this.companyMemberRepository.AddCompanyMember(objCompanyMemberViewModel)
                        ? new Message

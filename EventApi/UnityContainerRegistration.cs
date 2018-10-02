@@ -15,6 +15,9 @@
             var container = new UnityContainer();
             container.RegisterType<IUserRepository, UserRepository>();
             container.RegisterType<ICompanyRepository, CompanyRepository>();
+            container.RegisterType<ICompanyMemberRepository, CompanyMemberRepository>();
+            container.RegisterType<IEventRepository, EventRepository>();
+            container.RegisterType<IEventMemberRepository, EventMemberRepository>();
 
             GlobalConfiguration.Configuration.DependencyResolver = new UnityDependencyResolver(container);
 
