@@ -1,49 +1,60 @@
-﻿using log4net;
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Web.Http;
-
-namespace EventApi.Controllers
+﻿namespace EventApi.Controllers
 {
-    public abstract class BaseController : ApiController
+    using System;
+    using System.Web.Http;
+
+    using EventApi.Utility.JwtToken;
+
+    public class BaseController : ApiController
     {
-        private static ILog _logger;
+        public int? UserId => this.GetDefaultUser();
 
-        protected static ILog Logger => _logger ?? (_logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType));
-
-        protected virtual IHttpActionResult CreateResponse<T>(T value)
+        private int? GetDefaultUser()
         {
-            var response = value == null
-                ? Request.CreateResponse(HttpStatusCode.NotFound)
-                : Request.CreateResponse(HttpStatusCode.OK, value);
+            var request = this.Request;
+            var authorization = request.Headers.Authorization;
 
-            var result = ResponseMessage(response);
-            return result;
-        }
+            if (authorization == null || authorization.Scheme != "Bearer")
+            {
+                return null;
+            }
 
-        protected virtual IHttpActionResult CreateEmptyResponse()
-        {
-            var response = Request.CreateResponse(HttpStatusCode.OK);
-            var result = ResponseMessage(response);
-            return result;
-        }
+            if (string.IsNullOrEmpty(authorization.Parameter))
+            {
+                return null;
+            }
 
-        protected virtual IHttpActionResult CreateErrorResponse(string errorMessage = null, Exception exception = null, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
-        {
-            var errorResponse = exception != null
-                ? Request.CreateErrorResponse(httpStatusCode, errorMessage ?? exception.Message, exception)
-                : Request.CreateErrorResponse(httpStatusCode, errorMessage);
+            var token = authorization.Parameter;
 
-            var result = ResponseMessage(errorResponse);
-            return result;
-        }
+            string userId;
+            if (!JwtProvider.ValidateToken(token, out _, out userId))
+            {
+                return null;
+            }
 
-        protected virtual void LogError(Type type = null, string errorMessage = null, [CallerMemberName]string methodName = null)
-        {
-            Logger.Error($"Error occured: {type?.Name} - {methodName} - {errorMessage}");
+            return Convert.ToInt32(userId);
+
+            // var accessToken = data.Headers.Authorization.ToString();
+
+            // if (string.IsNullOrEmpty(Convert.ToString(accessToken, CultureInfo.CurrentCulture)))
+            // {
+            // return 0;
+            // }
+
+            // var simplePrinciple = JwtProvider.GetPrincipal(accessToken);
+
+            // if (!(simplePrinciple?.Identity is ClaimsIdentity identity))
+            // {
+            // return 0;
+            // }
+
+            // if (!identity.IsAuthenticated)
+            // {
+            // return 0;
+            // }
+
+            // var userIdClaim = identity.FindFirst(ClaimTypes.Name);
+            // return Convert.ToInt32(userIdClaim?.Value);
         }
     }
 }

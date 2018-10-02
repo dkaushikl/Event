@@ -1,7 +1,6 @@
 ﻿namespace Event.Repository
 {
     using System;
-    using System.Collections.Generic;
     using System.Configuration;
     using System.Data;
     using System.Data.Entity;
@@ -76,7 +75,7 @@
             objCompany.CreatedDate = objCompanyViewModel.CreatedDate;
             objCompany.IsActive = objCompanyViewModel.IsActive;
 
-            this.entities.Entry(objCompany).State = EntityState.Modified;
+            this.entities.Entry(objCompany).State = System.Data.Entity.EntityState.Modified;
             await this.entities.SaveChangesAsync();
 
             return true;
@@ -91,7 +90,11 @@
                 objSqlParameters[1] = new SqlParameter("@UserId", userId);
                 objSqlParameters[2] = new SqlParameter("@PageIndex", pageIndex);
                 objSqlParameters[3] = new SqlParameter("@PageSize", pageSize);
-                return await SqlHelper.ExecuteDataTableAsync(this.conn, CommandType.StoredProcedure, "GetAllCompany", objSqlParameters);
+                return await SqlHelper.ExecuteDataTableAsync(
+                           this.conn,
+                           CommandType.StoredProcedure,
+                           "GetAllCompany",
+                           objSqlParameters);
             }
             finally
             {

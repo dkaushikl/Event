@@ -2,7 +2,7 @@
 {
     using System.Web.Http;
 
-    using EventApi.Utility;
+    using EventApi.Utility.JwtToken;
 
     public static class WebApiConfig
     {
@@ -12,7 +12,7 @@
 
             config.MapHttpAttributeRoutes();
 
-            config.MessageHandlers.Add(new TokenValidation());
+            config.Filters.Add(new JwtAuthenticationAttribute());
 
             config.Routes.MapHttpRoute("DefaultApi", "api/{controller}/{id}", new { id = RouteParameter.Optional });
         }

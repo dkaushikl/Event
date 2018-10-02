@@ -12,36 +12,11 @@
     using EventApi.Utility;
 
     [Authorize]
-    public class CompanyController : ApiController
+    public class CompanyController : BaseController
     {
         private readonly ICompanyRepository companyRepository;
 
-        public CompanyController(ICompanyRepository companyRepository) =>
-            this.companyRepository = companyRepository;
-
-        [Route("api/Company")]
-        public string[] Get() => new string[] { "value1", "value2" };
-
-        [HttpGet]
-        [Route("api/Company/GetAllCompany/{pageIndex}/{pageSize}{companyId}")]
-        public async Task<Response<List<CompanyViewModel>>> GetAllCompany(int pageIndex, int pageSize,
-            int? companyId)
-        {
-            var userId = 1;
-            var objResult = await companyRepository.GetAllCompany(pageIndex, pageSize, userId, companyId);
-            var data = objResult.Columns.Count > 0
-                ? Utility.ConvertDataTable<CompanyViewModel>(objResult).ToList()
-                : null;
-
-            return new Response<List<CompanyViewModel>>
-            {
-                Data = data,
-                Status = ResponseStatus.Ok.ToString(),
-                IsSuccess = true,
-                TotalCount = data?.Count ?? 0,
-                Message = data != null && data.Count > 0 ? "Get Data Successfully" : "Data not found"
-            };
-        }
+        public CompanyController(ICompanyRepository companyRepository) => this.companyRepository = companyRepository;
 
         [HttpPost]
         [Route("api/Company/InsertCompany")]
@@ -50,11 +25,11 @@
             if (!this.ModelState.IsValid)
             {
                 return new Message
-                {
-                    Description = "Enter All data",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
+                           {
+                               Description = "Enter All data",
+                               Status = ResponseStatus.Error.ToString(),
+                               IsSuccess = false
+                           };
             }
 
             var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name);
@@ -62,26 +37,26 @@
             if (objCompany)
             {
                 return new Message
-                {
-                    Description = "Company already exist.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
+                           {
+                               Description = "Company already exist.",
+                               Status = ResponseStatus.Error.ToString(),
+                               IsSuccess = false
+                           };
             }
 
             return await this.companyRepository.AddCompany(objCompanyViewModel)
                        ? new Message
-                       {
-                           Description = "Company added successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
+                             {
+                                 Description = "Company added successfully.",
+                                 Status = ResponseStatus.Ok.ToString(),
+                                 IsSuccess = true
+                             }
                        : new Message
-                       {
-                           Description = "Something wen't wrong.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
-                       };
+                             {
+                                 Description = "Something wen't wrong.",
+                                 Status = ResponseStatus.Error.ToString(),
+                                 IsSuccess = false
+                             };
         }
 
         [HttpPost]
@@ -91,26 +66,26 @@
             if (string.IsNullOrEmpty(Convert.ToString(objEntity.Id)))
             {
                 return new Message
-                {
-                    Description = "Enter Valid Id.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
+                           {
+                               Description = "Enter Valid Id.",
+                               Status = ResponseStatus.Error.ToString(),
+                               IsSuccess = false
+                           };
             }
 
             return await this.companyRepository.DeleteCompany(objEntity.Id)
                        ? new Message
-                       {
-                           Description = "Company deleted successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
+                             {
+                                 Description = "Company deleted successfully.",
+                                 Status = ResponseStatus.Ok.ToString(),
+                                 IsSuccess = true
+                             }
                        : new Message
-                       {
-                           Description = "Company not exists.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
-                       };
+                             {
+                                 Description = "Company not exists.",
+                                 Status = ResponseStatus.Error.ToString(),
+                                 IsSuccess = false
+                             };
         }
 
         [HttpPost]
@@ -127,25 +102,50 @@
             if (objCompany)
             {
                 return new Message
-                {
-                    Description = "Company already exist.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
+                           {
+                               Description = "Company already exist.",
+                               Status = ResponseStatus.Error.ToString(),
+                               IsSuccess = false
+                           };
             }
 
             return await this.companyRepository.EditCompany(objCompanyViewModel)
                        ? new Message
-                       {
-                           Description = "Company updated successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
+                             {
+                                 Description = "Company updated successfully.",
+                                 Status = ResponseStatus.Ok.ToString(),
+                                 IsSuccess = true
+                             }
                        : new Message
+                             {
+                                 Description = "Company not found.",
+                                 Status = ResponseStatus.Error.ToString(),
+                                 IsSuccess = false
+                             };
+        }
+
+        [Route("api/Company")]
+        public string[] Get() => new[] { Convert.ToString(this.UserId), "value2" };
+
+        [HttpGet]
+        [Route("api/Company/GetAllCompany")]
+        public async Task<Response<List<CompanyViewModel>>> GetAllCompany(int pageIndex, int pageSize, int? companyId)
+        {
+            var userId = 1;
+            var objResult = await this.companyRepository.GetAllCompany(pageIndex, pageSize, userId, companyId);
+            var data = objResult.Columns.Count > 0
+                           ? Utility.ConvertDataTable<CompanyViewModel>(objResult).ToList()
+                           : null;
+
+            return new Response<List<CompanyViewModel>>
                        {
-                           Description = "Company not found.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
+                           Data = data,
+                           Status = ResponseStatus.Ok.ToString(),
+                           IsSuccess = true,
+                           TotalCount = data?.Count ?? 0,
+                           Message = data != null && data.Count > 0
+                                         ? "Get Data Successfully"
+                                         : "Data not found"
                        };
         }
     }
