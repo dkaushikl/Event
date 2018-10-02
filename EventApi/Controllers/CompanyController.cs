@@ -1,6 +1,8 @@
 ﻿namespace EventApi.Controllers
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Web.Http;
 
@@ -20,6 +22,27 @@
         [Route("api/Company")]
         public string[] Get() => new string[] { "value1", "value2" };
 
+        [HttpGet]
+        [Route("api/Company/GetAllCompany/{pageIndex}/{pageSize}{companyId}")]
+        public async Task<Response<List<CompanyViewModel>>> GetAllCompany(int pageIndex, int pageSize,
+            int? companyId)
+        {
+            var userId = 1;
+            var objResult = await companyRepository.GetAllCompany(pageIndex, pageSize, userId, companyId);
+            var data = objResult.Columns.Count > 0
+                ? Utility.ConvertDataTable<CompanyViewModel>(objResult).ToList()
+                : null;
+
+            return new Response<List<CompanyViewModel>>
+            {
+                Data = data,
+                Status = ResponseStatus.Ok.ToString(),
+                IsSuccess = true,
+                TotalCount = data?.Count ?? 0,
+                Message = data != null && data.Count > 0 ? "Get Data Successfully" : "Data not found"
+            };
+        }
+
         [HttpPost]
         [Route("api/Company/InsertCompany")]
         public async Task<Message> AddCompany(CompanyViewModel objCompanyViewModel)
@@ -36,7 +59,7 @@
 
             var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name);
 
-            if (objCompany != null)
+            if (objCompany)
             {
                 return new Message
                 {
@@ -101,7 +124,7 @@
 
             var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name);
 
-            if (objCompany != null)
+            if (objCompany)
             {
                 return new Message
                 {

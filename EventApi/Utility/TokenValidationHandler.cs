@@ -6,6 +6,8 @@
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Security.Principal;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web;
@@ -14,69 +16,112 @@
 
     internal class TokenValidation : DelegatingHandler
     {
-        public bool LifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
-        {
-            if (expires == null)
-            {
-                return false;
-            }
-
-            return DateTime.UtcNow < expires;
-        }
+        private const string WebUrl = "http://localhost:50554";
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            HttpStatusCode statusCode;
             string token;
-            if (!TryRetrieveToken(request, out token))
+            //determine whether a jwt exists or not
+            if (!TryRetrieveAuthToken(request, out token))
             {
+                //allow requests with no token - whether a action method needs an authentication can be set with the claims authorization attribute
                 return base.SendAsync(request, cancellationToken);
             }
 
+            HttpResponseMessage responseMessage;
             try
             {
-                const string SecurityKey = "401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1";
+                //extract and assign the user of the jwt
+                var claimsPrincipal = GetPrincipal(token, LifetimeValidator);
+                Thread.CurrentPrincipal = claimsPrincipal;
+                HttpContext.Current.User = claimsPrincipal;
 
-                var securityKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(SecurityKey));
-
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidAudience = "http://localhost:50554",
-                    ValidIssuer = "http://localhost:50554",
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    LifetimeValidator = this.LifetimeValidator,
-                    IssuerSigningKey = securityKey
-                };
-
-                Thread.CurrentPrincipal = new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out _);
-                HttpContext.Current.User = new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out _);
                 return base.SendAsync(request, cancellationToken);
             }
-            catch (SecurityTokenValidationException)
+            catch (SecurityTokenExpiredException tokenExpiredException)
             {
-                statusCode = HttpStatusCode.Unauthorized;
+                responseMessage = request.CreateErrorResponse(
+                    HttpStatusCode.Unauthorized,
+                    $"Auth token validation error: {tokenExpiredException}",
+                    tokenExpiredException);
             }
-            catch
+            catch (SecurityTokenValidationException tokenValidationException)
             {
-                statusCode = HttpStatusCode.InternalServerError;
+                responseMessage = request.CreateErrorResponse(
+                    HttpStatusCode.Unauthorized,
+                    $"Auth token validation error: {tokenValidationException.Message}",
+                    tokenValidationException);
+            }
+            catch (Exception exception)
+            {
+                responseMessage = request.CreateErrorResponse(
+                    HttpStatusCode.InternalServerError,
+                    exception);
             }
 
-            return Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage(statusCode), cancellationToken);
+            return Task<HttpResponseMessage>.Factory.StartNew(() => responseMessage, cancellationToken);
         }
 
-        private static bool TryRetrieveToken(HttpRequestMessage request, out string token)
+        private bool LifetimeValidator(
+            DateTime? notBefore,
+            DateTime? expires,
+            SecurityToken securityToken,
+            TokenValidationParameters validationParameters)
+        {
+            if (expires == null)
+                return false;
+
+            if (DateTime.UtcNow > expires)
+                throw new SecurityTokenExpiredException("Token expired!");
+
+            return true;
+        }
+
+        public static bool TryRetrieveAuthToken(HttpRequestMessage request, out string token)
         {
             token = null;
-            IEnumerable<string> authzHeaders;
-            if (!request.Headers.TryGetValues("Authorization", out authzHeaders) || authzHeaders.Count() > 1)
-            {
-                return false;
-            }
+            request.Headers.TryGetValues("Authorization", out IEnumerable<string> authorizationHeaders);
 
-            var bearerToken = authzHeaders.ElementAt(0);
+            var authHeaders = authorizationHeaders?.ToList();
+            if (authHeaders == null || authHeaders.Count > 1)
+                return false;
+
+            var bearerToken = authHeaders.ElementAt(0);
             token = bearerToken.StartsWith("Bearer ") ? bearerToken.Substring(7) : bearerToken;
             return true;
+        }
+
+        public static bool TryRetrieveRefreshToken(HttpRequestMessage request, out string refreshToken)
+        {
+            refreshToken = null;
+            request.Headers.TryGetValues("Refresh", out IEnumerable<string> authorizationHeaders);
+
+            var refreshHeaders = authorizationHeaders?.ToList();
+            if (refreshHeaders == null || refreshHeaders.Count > 1)
+                return false;
+
+            refreshToken = refreshHeaders.ElementAt(0);
+            return true;
+        }
+
+        public static IPrincipal GetPrincipal(string token, LifetimeValidator lifetimeValidator)
+        {
+            const string secKeyToken =
+                "401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1";
+
+            var securityKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(secKeyToken));
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidAudience = WebUrl,
+                ValidIssuer = WebUrl,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                LifetimeValidator = lifetimeValidator,
+                IssuerSigningKey = securityKey
+            };
+
+            //extract and assign the user of the jwt
+            return new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out SecurityToken securityToken);
         }
     }
 }

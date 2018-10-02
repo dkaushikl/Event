@@ -82,28 +82,16 @@
             return true;
         }
 
-        public async Task<List<CompanyViewModel>> GetAllCompany() =>
-            await (from objCompany in this.entities.Companies
-                   select new CompanyViewModel
-                   {
-                       Id = objCompany.Id,
-                       Name = objCompany.Name,
-                       Address = objCompany.Address,
-                       City = objCompany.City,
-                       Country = objCompany.Country,
-                       Email = objCompany.Email,
-                       MobileNo = objCompany.MobileNo,
-                       State = objCompany.State,
-                       CreatedBy = objCompany.CreatedBy,
-                       CreatedDate = objCompany.CreatedDate,
-                       IsActive = objCompany.IsActive
-                   }).ToListAsync();
-
-        public async Task<DataTable> GetAllCompanyUsingSp()
+        public async Task<DataTable> GetAllCompany(int pageIndex, int pageSize, int userId, int? companyId = 0)
         {
             try
             {
-                return await SqlHelper.ExecuteDataTableAsync(this.conn, CommandType.StoredProcedure, "GetCompany");
+                var objSqlParameters = new SqlParameter[4];
+                objSqlParameters[0] = new SqlParameter("@CompanyId", companyId);
+                objSqlParameters[1] = new SqlParameter("@UserId", userId);
+                objSqlParameters[2] = new SqlParameter("@PageIndex", pageIndex);
+                objSqlParameters[3] = new SqlParameter("@PageSize", pageSize);
+                return await SqlHelper.ExecuteDataTableAsync(this.conn, CommandType.StoredProcedure, "GetAllCompany", objSqlParameters);
             }
             finally
             {
@@ -111,49 +99,10 @@
             }
         }
 
-        public async Task<CompanyViewModel> GetCompanyById(int id)
+        public async Task<bool> GetCompanyByName(string companyName)
         {
-            var objCompany = await this.entities.Companies.FirstOrDefaultAsync(x => x.Id == id);
-
-            return objCompany == null
-                       ? null
-                       : new CompanyViewModel
-                       {
-                           Id = objCompany.Id,
-                           Name = objCompany.Name,
-                           Address = objCompany.Address,
-                           City = objCompany.City,
-                           Country = objCompany.Country,
-                           Email = objCompany.Email,
-                           MobileNo = objCompany.MobileNo,
-                           State = objCompany.State,
-                           CreatedBy = objCompany.CreatedBy,
-                           CreatedDate = objCompany.CreatedDate,
-                           IsActive = objCompany.IsActive
-                       };
-        }
-
-        public async Task<CompanyViewModel> GetCompanyByName(string name)
-        {
-            var objCompany =
-                await this.entities.Companies.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
-
-            return objCompany == null
-                       ? null
-                       : new CompanyViewModel
-                       {
-                           Id = objCompany.Id,
-                           Name = objCompany.Name,
-                           Address = objCompany.Address,
-                           City = objCompany.City,
-                           Country = objCompany.Country,
-                           Email = objCompany.Email,
-                           MobileNo = objCompany.MobileNo,
-                           State = objCompany.State,
-                           CreatedBy = objCompany.CreatedBy,
-                           CreatedDate = objCompany.CreatedDate,
-                           IsActive = objCompany.IsActive
-                       };
+            var companyExist = await this.entities.Companies.AnyAsync(x => x.Name.ToLower() == companyName.ToLower());
+            return companyExist;
         }
     }
 }
