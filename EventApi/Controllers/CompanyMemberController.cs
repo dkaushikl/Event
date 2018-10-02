@@ -1,7 +1,6 @@
 ﻿namespace EventApi.Controllers
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Web.Http;
@@ -11,7 +10,6 @@
 
     using EventApi.Utility;
 
-    [Authorize]
     public class CompanyMemberController : BaseController
     {
         private readonly ICompanyMemberRepository companyMemberRepository;
@@ -23,134 +21,83 @@
             this.userRepository = userRepository;
         }
 
-        [HttpPost]
-        [Route("api/CompanyMember/InsertCompanyMember")]
-        public async Task<Message> AddCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
-        {
-            if (!this.ModelState.IsValid)
-            {
-                return new Message
-                {
-                    Description = "Enter All data",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
-            }
-
-            var objCompanyMember = await this.companyMemberRepository.CheckUserExist(objCompanyMemberViewModel.CompanyId, objCompanyMemberViewModel.Email);
-
-            if (objCompanyMember)
-            {
-                return new Message
-                {
-                    Description = "Already exist this user.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
-            }
-
-            objCompanyMemberViewModel.UserId = await this.userRepository.GetUserIdByEmail(objCompanyMemberViewModel.Email);
-
-            return await this.companyMemberRepository.AddCompanyMember(objCompanyMemberViewModel)
-                       ? new Message
-                       {
-                           Description = "CompanyMember added successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
-                       : new Message
-                       {
-                           Description = "Something wen't wrong.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
-                       };
-        }
-
-        [HttpPost]
-        [Route("api/CompanyMember/DeleteCompanyMember")]
-        public async Task<Message> DeleteCompanyMember(Entity objEntity)
-        {
-            if (string.IsNullOrEmpty(Convert.ToString(objEntity.Id)))
-            {
-                return new Message
-                {
-                    Description = "Enter Valid Id.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
-            }
-
-            return await this.companyMemberRepository.DeleteCompanyMember(objEntity.Id)
-                       ? new Message
-                       {
-                           Description = "CompanyMember deleted successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
-                       : new Message
-                       {
-                           Description = "CompanyMember not exists.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
-                       };
-        }
-
-        [HttpPost]
-        [Route("api/CompanyMember/UpdateCompanyMember")]
-        public async Task<Message> EditCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
-        {
-            if (!this.ModelState.IsValid)
-            {
-                return new Message { Description = "Enter All data", Status = ResponseStatus.Error.ToString() };
-            }
-
-            var objCompanyMember = await this.companyMemberRepository.CheckUserExist(objCompanyMemberViewModel.CompanyId, objCompanyMemberViewModel.Email);
-
-            if (objCompanyMember)
-            {
-                return new Message
-                {
-                    Description = "Already exist this user.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
-            }
-
-            return await this.companyMemberRepository.EditCompanyMember(objCompanyMemberViewModel)
-                       ? new Message
-                       {
-                           Description = "CompanyMember updated successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
-                       : new Message
-                       {
-                           Description = "CompanyMember not found.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
-                       };
-        }
-
+        [Authorize]
         [HttpGet]
         [Route("api/CompanyMember/GetAllCompanyMember")]
-        public async Task<Response<List<CompanyMemberViewModel>>> GetAllCompanyMember(int pageIndex, int pageSize, int? companyId)
+        public async Task<IHttpActionResult> GetAllCompanyMember(int pageIndex, int pageSize, int? companyId)
         {
             var objResult = await this.companyMemberRepository.GetAllCompanyMember(pageIndex, pageSize, Convert.ToInt32(this.UserId), companyId);
 
             var data = objResult.Columns.Count > 0
-                           ? Utility.ConvertDataTable<CompanyMemberViewModel>(objResult).ToList()
+                           ? Utility.ConvertDataTable<CompanyMemberDisplayViewModel>(objResult).ToList()
                            : null;
 
-            return new Response<List<CompanyMemberViewModel>>
-            {
-                Data = data,
-                Status = ResponseStatus.Ok.ToString(),
-                IsSuccess = true,
-                TotalCount = data?.Count ?? 0,
-                Message = data != null && data.Count > 0
-                                         ? "Get Data Successfully"
-                                         : "Data not found"
-            };
+            return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", data));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/CompanyMember/InsertCompanyMember")]
+        public async Task<IHttpActionResult> AddCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
+        {
+            if (!this.ModelState.IsValid)
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!",
+                     null));
+
+            var checkEmailExist = await this.userRepository.CheckEmailExist(objCompanyMemberViewModel.Email);
+
+            if (!checkEmailExist)
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User not found. please register first!!", null));
+
+            var objCompanyMember = await this.companyMemberRepository.CheckUserExist(objCompanyMemberViewModel.CompanyId, objCompanyMemberViewModel.Email);
+
+            if (objCompanyMember)
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User already exist!!", null));
+
+            objCompanyMemberViewModel.UserId = await this.userRepository.GetUserIdByEmail(objCompanyMemberViewModel.Email);
+
+            return await this.companyMemberRepository.AddCompanyMember(objCompanyMemberViewModel) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Member added successfully!!",
+           null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Something wen't wrong!!",
+           null));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/CompanyMember/UpdateCompanyMember")]
+        public async Task<IHttpActionResult> EditCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
+        {
+            if (!this.ModelState.IsValid)
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!",
+          null));
+
+            var checkEmailExist = await this.userRepository.CheckEmailExist(objCompanyMemberViewModel.Email);
+
+            if (!checkEmailExist)
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User not found. please register first!!", null));
+
+            var objCompanyMember = await this.companyMemberRepository.CheckUserExist(objCompanyMemberViewModel.CompanyId, objCompanyMemberViewModel.Email);
+
+            if (objCompanyMember)
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Member already exist!!",
+               null));
+
+            return await this.companyMemberRepository.EditCompanyMember(objCompanyMemberViewModel) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Member updated successfully!!",
+             null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company Member not found!!",
+             null));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/CompanyMember/DeleteCompanyMember")]
+        public async Task<IHttpActionResult> DeleteCompanyMember(Entity objEntity)
+        {
+            if (string.IsNullOrEmpty(Convert.ToString(objEntity.Id)))
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter Valid Id!!",
+                null));
+
+            return await this.companyMemberRepository.DeleteCompanyMember(objEntity.Id) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Company member deleted successfully!!",
+             null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Member not exists!!",
+             null));
         }
     }
 }

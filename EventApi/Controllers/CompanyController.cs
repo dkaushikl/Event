@@ -21,131 +21,72 @@
         [Authorize]
         [HttpGet]
         [Route("api/Company/GetAllCompany")]
-        public async Task<Response<List<CompanyViewModel>>> GetAllCompany(int pageIndex, int pageSize, int? companyId)
+        public async Task<IHttpActionResult> GetAllCompany(int pageIndex, int pageSize, int? companyId)
         {
-            var userId = 1;
-            var objResult = await this.companyRepository.GetAllCompany(pageIndex, pageSize, userId, companyId);
+            var objResult = await this.companyRepository.GetAllCompany(pageIndex, pageSize, Convert.ToInt32(this.UserId), companyId);
+
             var data = objResult.Columns.Count > 0
-                           ? Utility.ConvertDataTable<CompanyViewModel>(objResult).ToList()
+                           ? Utility.ConvertDataTable<CompanyDisplayViewModel>(objResult).ToList()
                            : null;
 
-            return new Response<List<CompanyViewModel>>
-            {
-                Data = data,
-                Status = ResponseStatus.Ok.ToString(),
-                IsSuccess = true,
-                TotalCount = data?.Count ?? 0,
-                Message = data != null && data.Count > 0
-                                         ? "Get Data Successfully"
-                                         : "Data not found"
-            };
+            return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", data));
         }
 
+        [Authorize]
         [HttpPost]
         [Route("api/Company/InsertCompany")]
-        public async Task<Message> AddCompany(CompanyViewModel objCompanyViewModel)
+        public async Task<IHttpActionResult> AddCompany(CompanyViewModel objCompanyViewModel)
         {
             if (!this.ModelState.IsValid)
-            {
-                return new Message
-                {
-                    Description = "Enter All data",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!",
+              null));
 
             var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name, 0);
 
             if (objCompany)
-            {
-                return new Message
-                {
-                    Description = "Company already exist.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company already exist!!", null));
 
-            return await this.companyRepository.AddCompany(objCompanyViewModel)
-                       ? new Message
-                       {
-                           Description = "Company added successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
-                       : new Message
-                       {
-                           Description = "Something wen't wrong.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
-                       };
+            objCompanyViewModel.CreatedBy = Convert.ToInt64(this.UserId);
+
+            return await this.companyRepository.AddCompany(objCompanyViewModel) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Company added successfully!!",
+            null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company not found!!",
+            null));
         }
 
         [HttpPost]
         [Route("api/Company/UpdateCompany")]
-        public async Task<Message> EditCompany(CompanyViewModel objCompanyViewModel)
+        public async Task<IHttpActionResult> EditCompany(CompanyViewModel objCompanyViewModel)
         {
             if (!this.ModelState.IsValid)
-            {
-                return new Message { Description = "Enter All data", Status = ResponseStatus.Error.ToString() };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!",
+           null));
 
             var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name, objCompanyViewModel.Id);
 
             if (objCompany)
-            {
-                return new Message
-                {
-                    Description = "Company already exist.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company already exist!!",
+             null));
 
-            return await this.companyRepository.EditCompany(objCompanyViewModel)
-                       ? new Message
-                       {
-                           Description = "Company updated successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
-                       : new Message
-                       {
-                           Description = "Company not found.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
-                       };
+            objCompanyViewModel.CreatedBy = Convert.ToInt64(this.UserId);
+
+            return await this.companyRepository.EditCompany(objCompanyViewModel) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Company updated successfully!!",
+             null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company not found!!",
+             null));
         }
 
         [Authorize]
         [HttpPost]
         [Route("api/Company/DeleteCompany")]
-        public async Task<Message> DeleteCompany(Entity objEntity)
+        public async Task<IHttpActionResult> DeleteCompany(Entity objEntity)
         {
             if (string.IsNullOrEmpty(Convert.ToString(objEntity.Id)))
-            {
-                return new Message
-                {
-                    Description = "Enter Valid Id.",
-                    Status = ResponseStatus.Error.ToString(),
-                    IsSuccess = false
-                };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter Valid Id!!",
+             null));
+            
 
-            return await this.companyRepository.DeleteCompany(objEntity.Id)
-                       ? new Message
-                       {
-                           Description = "Company deleted successfully.",
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true
-                       }
-                       : new Message
-                       {
-                           Description = "Company not exists.",
-                           Status = ResponseStatus.Error.ToString(),
-                           IsSuccess = false
-                       };
+            return await this.companyRepository.DeleteCompany(objEntity.Id) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Company deleted successfully!!",
+             null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company not exists!!",
+             null));
         }
     }
 }

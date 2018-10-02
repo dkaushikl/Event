@@ -23,7 +23,6 @@
         {
             var objCompanyMember = new CompanyMember
             {
-                Id = objCompanyMemberViewModel.Id,
                 UserId = objCompanyMemberViewModel.UserId,
                 CompanyId = objCompanyMemberViewModel.CompanyId,
                 CreatedDate = DateTime.Now,
@@ -58,10 +57,8 @@
                 return false;
             }
 
-            objCompanyMember.Id = objCompanyMemberViewModel.Id;
             objCompanyMember.CompanyId = objCompanyMemberViewModel.CompanyId;
             objCompanyMember.UserId = objCompanyMemberViewModel.UserId;
-            objCompanyMember.CreatedDate = objCompanyMemberViewModel.CreatedDate;
             objCompanyMember.IsActive = objCompanyMemberViewModel.IsActive;
 
             this.entities.Entry(objCompanyMember).State = System.Data.Entity.EntityState.Modified;

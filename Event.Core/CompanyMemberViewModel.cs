@@ -16,4 +16,19 @@ namespace Event.Core
 
         public string Email { get; set; }
     }
+
+    public partial class CompanyMemberDisplayViewModel
+    {
+        public long Id { get; set; }
+
+        public string Name { get; set; }
+
+        public string Firstname { get; set; }
+
+        public string Lastname { get; set; }
+
+        public string UserEmail { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+    }
 }

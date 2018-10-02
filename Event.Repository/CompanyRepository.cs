@@ -23,7 +23,6 @@
         {
             var objCompany = new Company
             {
-                Id = objCompanyViewModel.Id,
                 Name = objCompanyViewModel.Name,
                 Address = objCompanyViewModel.Address,
                 City = objCompanyViewModel.City,
@@ -63,7 +62,6 @@
                 return false;
             }
 
-            objCompany.Id = objCompanyViewModel.Id;
             objCompany.Name = objCompanyViewModel.Name;
             objCompany.Address = objCompanyViewModel.Address;
             objCompany.City = objCompanyViewModel.City;
@@ -71,8 +69,6 @@
             objCompany.Email = objCompanyViewModel.Email;
             objCompany.MobileNo = objCompanyViewModel.MobileNo;
             objCompany.State = objCompanyViewModel.State;
-            objCompany.CreatedBy = objCompanyViewModel.CreatedBy;
-            objCompany.CreatedDate = objCompanyViewModel.CreatedDate;
             objCompany.IsActive = objCompanyViewModel.IsActive;
 
             this.entities.Entry(objCompany).State = System.Data.Entity.EntityState.Modified;

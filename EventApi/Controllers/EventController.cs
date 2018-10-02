@@ -1,7 +1,6 @@
 ﻿namespace EventApi.Controllers
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Web.Http;
@@ -20,130 +19,66 @@
 
         [HttpPost]
         [Route("api/Event/InsertEvent")]
-        public async Task<Message> AddEvent(EventViewModel objEventViewModel)
+        public async Task<IHttpActionResult> AddEvent(EventViewModel objEventViewModel)
         {
             if (!this.ModelState.IsValid)
-            {
-                return new Message
-                           {
-                               Description = "Enter All data",
-                               Status = ResponseStatus.Error.ToString(),
-                               IsSuccess = false
-                           };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!",
+           null));
 
             var objEvent = await this.eventRepository.GetEventByName(objEventViewModel.Name);
 
             if (objEvent)
-            {
-                return new Message
-                           {
-                               Description = "Event already exist.",
-                               Status = ResponseStatus.Error.ToString(),
-                               IsSuccess = false
-                           };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Event already exist!!",
+            null));
 
-            return await this.eventRepository.AddEvent(objEventViewModel)
-                       ? new Message
-                             {
-                                 Description = "Event added successfully.",
-                                 Status = ResponseStatus.Ok.ToString(),
-                                 IsSuccess = true
-                             }
-                       : new Message
-                             {
-                                 Description = "Something wen't wrong.",
-                                 Status = ResponseStatus.Error.ToString(),
-                                 IsSuccess = false
-                             };
+            return await this.eventRepository.AddEvent(objEventViewModel) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Event added successfully!!",
+             null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Event not found!!",
+             null));
         }
 
         [HttpPost]
         [Route("api/Event/DeleteEvent")]
-        public async Task<Message> DeleteEvent(Entity objEntity)
+        public async Task<IHttpActionResult> DeleteEvent(Entity objEntity)
         {
             if (string.IsNullOrEmpty(Convert.ToString(objEntity.Id)))
-            {
-                return new Message
-                           {
-                               Description = "Enter Valid Id.",
-                               Status = ResponseStatus.Error.ToString(),
-                               IsSuccess = false
-                           };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter Valid Id!!",
+            null));
 
-            return await this.eventRepository.DeleteEvent(objEntity.Id)
-                       ? new Message
-                             {
-                                 Description = "Event deleted successfully.",
-                                 Status = ResponseStatus.Ok.ToString(),
-                                 IsSuccess = true
-                             }
-                       : new Message
-                             {
-                                 Description = "Event not exists.",
-                                 Status = ResponseStatus.Error.ToString(),
-                                 IsSuccess = false
-                             };
+            return await this.eventRepository.DeleteEvent(objEntity.Id) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Event deleted successfully!!",
+             null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Event not exists!!",
+             null));
         }
 
         [HttpPost]
         [Route("api/Event/UpdateEvent")]
-        public async Task<Message> EditEvent(EventViewModel objEventViewModel)
+        public async Task<IHttpActionResult> EditEvent(EventViewModel objEventViewModel)
         {
             if (!this.ModelState.IsValid)
-            {
-                return new Message { Description = "Enter All data", Status = ResponseStatus.Error.ToString() };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!",
+           null));
 
             var objEvent = await this.eventRepository.GetEventByName(objEventViewModel.Name);
 
             if (objEvent)
-            {
-                return new Message
-                           {
-                               Description = "Event already exist.",
-                               Status = ResponseStatus.Error.ToString(),
-                               IsSuccess = false
-                           };
-            }
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Event already exist!!",
+            null));
 
-            return await this.eventRepository.EditEvent(objEventViewModel)
-                       ? new Message
-                             {
-                                 Description = "Event updated successfully.",
-                                 Status = ResponseStatus.Ok.ToString(),
-                                 IsSuccess = true
-                             }
-                       : new Message
-                             {
-                                 Description = "Event not found.",
-                                 Status = ResponseStatus.Error.ToString(),
-                                 IsSuccess = false
-                             };
+            return await this.eventRepository.EditEvent(objEventViewModel) ? Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Event updated successfully!!",
+            null)) : Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Event not found!!",
+            null));
         }
 
         [HttpGet]
         [Route("api/Event/GetAllEvent")]
-        public async Task<Response<List<EventViewModel>>> GetAllEvent(int pageIndex, int pageSize, int? eventId)
+        public async Task<IHttpActionResult> GetAllEvent(int pageIndex, int pageSize, int? eventId)
         {
-            var userId = 1;
-            var objResult = await this.eventRepository.GetAllEvent(pageIndex, pageSize, userId, eventId);
+            var objResult = await this.eventRepository.GetAllEvent(pageIndex, pageSize, Convert.ToInt32(this.UserId), eventId);
+
             var data = objResult.Columns.Count > 0
                            ? Utility.ConvertDataTable<EventViewModel>(objResult).ToList()
                            : null;
 
-            return new Response<List<EventViewModel>>
-                       {
-                           Data = data,
-                           Status = ResponseStatus.Ok.ToString(),
-                           IsSuccess = true,
-                           TotalCount = data?.Count ?? 0,
-                           Message = data != null && data.Count > 0
-                                         ? "Get Data Successfully"
-                                         : "Data not found"
-                       };
+            return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", data));
         }
     }
 }

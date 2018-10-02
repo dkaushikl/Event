@@ -27,9 +27,19 @@
             return true;
         }
 
+        public async Task<User> Login(string email, string password)
+        {
+            return await this.entities.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower() && x.Password == password);
+        }
+
+        public async Task<bool> CheckEmailExist(string email)
+        {
+            return await this.entities.Users.AnyAsync(x => x.Email == email.ToLower());
+        }
+
         public async Task<long> GetUserIdByEmail(string email)
         {
-            return await this.entities.Users.Where(x => x.Email == email.ToLower()).Select(x => x.Id).FirstOrDefaultAsync();
+            return await this.entities.Users.Where(x => x.Email.ToLower() == email.ToLower()).Select(x => x.Id).FirstOrDefaultAsync();
         }
     }
 }
