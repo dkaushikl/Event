@@ -12,12 +12,6 @@
     {
         public bool AllowMultiple => false;
 
-        public string Email { get; set; }
-
-        public string Realm { get; set; }
-
-        public string UserId { get; set; }
-
         public async Task AuthenticateAsync(HttpAuthenticationContext context, CancellationToken cancellationToken)
         {
             var request = context.Request;
@@ -28,9 +22,11 @@
                 return;
             }
 
+            const string ErrorMessage = "The account being accessed does not have sufficient permissions to execute this operation.";
+
             if (string.IsNullOrEmpty(authorization.Parameter))
             {
-                context.ErrorResult = new AuthenticationFailureResult("Missing Jwt Token", request);
+                context.ErrorResult = new AuthenticationFailureResult(new { Error = true, Message = ErrorMessage }, request);
                 return;
             }
 
@@ -39,7 +35,7 @@
 
             if (principal == null)
             {
-                context.ErrorResult = new AuthenticationFailureResult("Invalid token", request);
+                context.ErrorResult = new AuthenticationFailureResult(new { Error = true, Message = ErrorMessage }, request);
             }
             else
             {
@@ -47,11 +43,7 @@
             }
         }
 
-        public Task ChallengeAsync(HttpAuthenticationChallengeContext context, CancellationToken cancellationToken)
-        {
-            this.Challenge(context);
-            return Task.FromResult(0);
-        }
+        public Task ChallengeAsync(HttpAuthenticationChallengeContext context, CancellationToken cancellationToken) => Task.FromResult(0);
 
         protected Task<IPrincipal> AuthenticateJwtToken(string token)
         {
@@ -66,18 +58,6 @@
             var identity = new ClaimsIdentity(claims, "Jwt");
             IPrincipal user = new ClaimsPrincipal(identity);
             return Task.FromResult(user);
-        }
-
-        private void Challenge(HttpAuthenticationChallengeContext context)
-        {
-            string parameter = null;
-
-            if (!string.IsNullOrEmpty(this.Realm))
-            {
-                parameter = "realm=\"" + this.Realm + "\"";
-            }
-
-            context.ChallengeWith("Bearer", parameter);
         }
     }
 }

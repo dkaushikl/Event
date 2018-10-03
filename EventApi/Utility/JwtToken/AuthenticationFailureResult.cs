@@ -2,33 +2,35 @@
 {
     using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Formatting;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Http;
 
     public class AuthenticationFailureResult : IHttpActionResult
     {
-        public AuthenticationFailureResult(string reasonPhrase, HttpRequestMessage request)
+        public AuthenticationFailureResult(object jsonContent, HttpRequestMessage request)
         {
-            this.ReasonPhrase = reasonPhrase;
+            this.JsonContent = jsonContent;
             this.Request = request;
         }
 
-        public string ReasonPhrase { get; }
-
         public HttpRequestMessage Request { get; }
 
-        public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken) =>
-            Task.FromResult(this.Execute());
+        public object JsonContent { get; }
+
+        public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken) => Task.FromResult(this.Execute());
 
         private HttpResponseMessage Execute()
         {
-            var response =
-                new HttpResponseMessage(HttpStatusCode.Unauthorized)
-                    {
-                        RequestMessage = this.Request,
-                        ReasonPhrase = this.ReasonPhrase
-                    };
+            var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+            {
+                RequestMessage = this.Request,
+                Content = new ObjectContent(
+                            this.JsonContent.GetType(),
+                            this.JsonContent,
+                            new JsonMediaTypeFormatter())
+            };
             return response;
         }
     }
