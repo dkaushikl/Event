@@ -9,12 +9,12 @@
     {
         Task<bool> AddCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel);
 
+        Task<bool> CheckUserExist(long companyId, string email);
+
         Task<bool> DeleteCompanyMember(int id);
 
         Task<bool> EditCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel);
 
-        Task<DataTable> GetAllCompanyMember(int pageIndex, int pageSize, int userId, int? companyId);
-
-        Task<bool> CheckUserExist(long companyId, string email);
+        Task<DataTable> GetAllCompanyMember(int pageIndex, int pageSize, int companyId);
     }
 }

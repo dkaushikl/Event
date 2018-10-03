@@ -12,6 +12,8 @@
     using Event.Data;
     using Event.Repository.Interface;
 
+    using EntityState = System.Data.Entity.EntityState;
+
     public class CompanyMemberRepository : ICompanyMemberRepository
     {
         private readonly SqlConnection conn =
@@ -22,16 +24,23 @@
         public async Task<bool> AddCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
         {
             var objCompanyMember = new CompanyMember
-            {
-                UserId = objCompanyMemberViewModel.UserId,
-                CompanyId = objCompanyMemberViewModel.CompanyId,
-                CreatedDate = DateTime.Now,
-                IsActive = objCompanyMemberViewModel.IsActive
-            };
+                                       {
+                                           UserId = objCompanyMemberViewModel.UserId,
+                                           CompanyId = objCompanyMemberViewModel.CompanyId,
+                                           CreatedDate = DateTime.Now,
+                                           IsActive = objCompanyMemberViewModel.IsActive
+                                       };
 
             this.entities.CompanyMembers.Add(objCompanyMember);
             await this.entities.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> CheckUserExist(long companyId, string email)
+        {
+            var companyExist = await this.entities.CompanyMembers.AnyAsync(
+                                   x => x.CompanyId == companyId && x.User.Email.ToLower() == email.ToLower());
+            return companyExist;
         }
 
         public async Task<bool> DeleteCompanyMember(int id)
@@ -50,7 +59,8 @@
 
         public async Task<bool> EditCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
         {
-            var objCompanyMember = await this.entities.CompanyMembers.FirstOrDefaultAsync(x => x.Id == objCompanyMemberViewModel.Id);
+            var objCompanyMember =
+                await this.entities.CompanyMembers.FirstOrDefaultAsync(x => x.Id == objCompanyMemberViewModel.Id);
 
             if (objCompanyMember == null)
             {
@@ -61,19 +71,18 @@
             objCompanyMember.UserId = objCompanyMemberViewModel.UserId;
             objCompanyMember.IsActive = objCompanyMemberViewModel.IsActive;
 
-            this.entities.Entry(objCompanyMember).State = System.Data.Entity.EntityState.Modified;
+            this.entities.Entry(objCompanyMember).State = EntityState.Modified;
             await this.entities.SaveChangesAsync();
 
             return true;
         }
 
-        public async Task<DataTable> GetAllCompanyMember(int pageIndex, int pageSize, int userId, int? companyId = 0)
+        public async Task<DataTable> GetAllCompanyMember(int pageIndex, int pageSize, int companyId)
         {
             try
             {
                 var objSqlParameters = new SqlParameter[4];
-                objSqlParameters[0] = new SqlParameter("@CompanyMemberId", companyId);
-                objSqlParameters[1] = new SqlParameter("@UserId", userId);
+                objSqlParameters[0] = new SqlParameter("@CompanyId", companyId);
                 objSqlParameters[2] = new SqlParameter("@PageIndex", pageIndex);
                 objSqlParameters[3] = new SqlParameter("@PageSize", pageSize);
                 return await SqlHelper.ExecuteDataTableAsync(
@@ -86,12 +95,6 @@
             {
                 this.conn.Close();
             }
-        }
-
-        public async Task<bool> CheckUserExist(long companyId, string email)
-        {
-            var companyExist = await this.entities.CompanyMembers.AnyAsync(x => x.CompanyId == companyId && x.User.Email.ToLower() == email.ToLower());
-            return companyExist;
         }
     }
 }

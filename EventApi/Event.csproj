@@ -175,9 +175,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Event.Common\Event.Common.csproj">
       <Project>{1B62DAEA-DD08-448E-BE01-4FBAAA38DCD7}</Project>

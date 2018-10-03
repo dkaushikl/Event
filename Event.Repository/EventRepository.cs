@@ -12,6 +12,8 @@
     using Event.Data;
     using Event.Repository.Interface;
 
+    using EntityState = System.Data.Entity.EntityState;
+
     public class EventRepository : IEventRepository
     {
         private readonly SqlConnection conn =
@@ -22,21 +24,19 @@
         public async Task<bool> AddEvent(EventViewModel objEventViewModel)
         {
             var objEvent = new Event
-            {
-                Id = objEventViewModel.Id,
-                Name = objEventViewModel.Name,
-                CompanyId = objEventViewModel.CompanyId,
-                Description = objEventViewModel.Description,
-                EndDate = objEventViewModel.EndDate,
-                EndTime = objEventViewModel.EndTime,
-                StartDate = objEventViewModel.StartDate,
-                StartTime = objEventViewModel.StartTime,
-                Vanue = objEventViewModel.Vanue,
-                CreatedBy = objEventViewModel.CreatedBy,
-                CreatedDate = DateTime.Now,
-                IsActive = objEventViewModel.IsActive
-            };
-
+                               {
+                                   Name = objEventViewModel.Name,
+                                   CompanyId = objEventViewModel.CompanyId,
+                                   Description = objEventViewModel.Description,
+                                   Vanue = objEventViewModel.Vanue,
+                                   StartDate = objEventViewModel.StartDate,
+                                   StartTime = objEventViewModel.StartTime,
+                                   EndDate = objEventViewModel.EndDate,
+                                   EndTime = objEventViewModel.EndTime,
+                                   CreatedBy = objEventViewModel.CreatedBy,
+                                   CreatedDate = DateTime.Now,
+                                   IsActive = objEventViewModel.IsActive
+                               };
             this.entities.Events.Add(objEvent);
             await this.entities.SaveChangesAsync();
             return true;
@@ -64,20 +64,18 @@
                 return false;
             }
 
-            objEvent.Id = objEventViewModel.Id;
             objEvent.Name = objEventViewModel.Name;
             objEvent.CompanyId = objEventViewModel.CompanyId;
             objEvent.Description = objEventViewModel.Description;
-            objEvent.EndDate = objEventViewModel.EndDate;
-            objEvent.EndTime = objEventViewModel.EndTime;
+            objEvent.Vanue = objEventViewModel.Vanue;
             objEvent.StartDate = objEventViewModel.StartDate;
             objEvent.StartTime = objEventViewModel.StartTime;
-            objEvent.Vanue = objEventViewModel.Vanue;
+            objEvent.EndDate = objEventViewModel.EndDate;
+            objEvent.EndTime = objEventViewModel.EndTime;
             objEvent.CreatedBy = objEventViewModel.CreatedBy;
-            objEvent.CreatedDate = objEventViewModel.CreatedDate;
             objEvent.IsActive = objEventViewModel.IsActive;
 
-            this.entities.Entry(objEvent).State = System.Data.Entity.EntityState.Modified;
+            this.entities.Entry(objEvent).State = EntityState.Modified;
             await this.entities.SaveChangesAsync();
 
             return true;
@@ -104,9 +102,10 @@
             }
         }
 
-        public async Task<bool> GetEventByName(string eventName)
+        public async Task<bool> GetEventByName(string eventName, long eventId)
         {
-            var eventExist = await this.entities.Events.AnyAsync(x => x.Name.ToLower() == eventName.ToLower());
+            var eventExist =
+                await this.entities.Events.AnyAsync(x => x.Name.ToLower() == eventName.ToLower() && x.Id != eventId);
             return eventExist;
         }
     }

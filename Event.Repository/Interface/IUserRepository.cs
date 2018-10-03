@@ -7,12 +7,12 @@
 
     public interface IUserRepository
     {
-        Task<User> Login(string email, string password);
-
-        Task<bool> Register(RegisterViewModel registerViewModel);
+        Task<bool> CheckEmailExist(string email);
 
         Task<long> GetUserIdByEmail(string email);
 
-        Task<bool> CheckEmailExist(string email);
+        Task<User> Login(string email, string password);
+
+        Task<bool> Register(RegisterViewModel registerViewModel);
     }
 }

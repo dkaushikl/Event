@@ -12,6 +12,8 @@
     using Event.Data;
     using Event.Repository.Interface;
 
+    using EntityState = System.Data.Entity.EntityState;
+
     public class CompanyRepository : ICompanyRepository
     {
         private readonly SqlConnection conn =
@@ -22,18 +24,18 @@
         public async Task<bool> AddCompany(CompanyViewModel objCompanyViewModel)
         {
             var objCompany = new Company
-            {
-                Name = objCompanyViewModel.Name,
-                Address = objCompanyViewModel.Address,
-                City = objCompanyViewModel.City,
-                Country = objCompanyViewModel.Country,
-                Email = objCompanyViewModel.Email,
-                MobileNo = objCompanyViewModel.MobileNo,
-                State = objCompanyViewModel.State,
-                CreatedBy = objCompanyViewModel.CreatedBy,
-                CreatedDate = DateTime.Now,
-                IsActive = objCompanyViewModel.IsActive
-            };
+                                 {
+                                     Name = objCompanyViewModel.Name,
+                                     Address = objCompanyViewModel.Address,
+                                     City = objCompanyViewModel.City,
+                                     Country = objCompanyViewModel.Country,
+                                     Email = objCompanyViewModel.Email,
+                                     MobileNo = objCompanyViewModel.MobileNo,
+                                     State = objCompanyViewModel.State,
+                                     CreatedBy = objCompanyViewModel.CreatedBy,
+                                     CreatedDate = DateTime.Now,
+                                     IsActive = objCompanyViewModel.IsActive
+                                 };
 
             this.entities.Companies.Add(objCompany);
             await this.entities.SaveChangesAsync();
@@ -71,7 +73,7 @@
             objCompany.State = objCompanyViewModel.State;
             objCompany.IsActive = objCompanyViewModel.IsActive;
 
-            this.entities.Entry(objCompany).State = System.Data.Entity.EntityState.Modified;
+            this.entities.Entry(objCompany).State = EntityState.Modified;
             await this.entities.SaveChangesAsync();
 
             return true;
@@ -100,7 +102,9 @@
 
         public async Task<bool> GetCompanyByName(string companyName, long companyId)
         {
-            var companyExist = await this.entities.Companies.AnyAsync(x => x.Id != companyId && x.Name.ToLower() == companyName.ToLower());
+            var companyExist =
+                await this.entities.Companies.AnyAsync(
+                    x => x.Id != companyId && x.Name.ToLower() == companyName.ToLower());
             return companyExist;
         }
     }

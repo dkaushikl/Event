@@ -29,27 +29,27 @@ namespace Event.Core
 
     public class CompanyDisplayViewModel
     {
-        public long Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string Firstname { get; set; }
-
-        public string Lastname { get; set; }
-
-        public string CompanyEmail { get; set; }
-
-        public string MobileNo { get; set; }
-
         public string Address { get; set; }
 
         public string City { get; set; }
 
-        public string State { get; set; }
+        public string CompanyEmail { get; set; }
 
         public string Country { get; set; }
 
         public DateTime CreatedDate { get; set; }
+
+        public string Firstname { get; set; }
+
+        public long Id { get; set; }
+
+        public string Lastname { get; set; }
+
+        public string MobileNo { get; set; }
+
+        public string Name { get; set; }
+
+        public string State { get; set; }
 
         public string UserEmail { get; set; }
     }

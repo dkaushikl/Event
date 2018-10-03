@@ -9,12 +9,12 @@
     {
         Task<bool> AddEventMember(EventMemberViewModel objEventMemberViewModel);
 
+        Task<bool> CheckEventUserExist(long userId, long eventId);
+
         Task<bool> DeleteEventMember(int id);
 
         Task<bool> EditEventMember(EventMemberViewModel objEventMemberViewModel);
 
         Task<DataTable> GetAllEventMember(int pageIndex, int pageSize, int userId, int? eventMemberId);
-
-        Task<bool> CheckEventUserExist(long userId, long eventId);
     }
 }

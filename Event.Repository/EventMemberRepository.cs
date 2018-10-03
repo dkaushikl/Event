@@ -12,6 +12,8 @@
     using Event.Data;
     using Event.Repository.Interface;
 
+    using EntityState = System.Data.Entity.EntityState;
+
     public class EventMemberRepository : IEventMemberRepository
     {
         private readonly SqlConnection conn =
@@ -22,17 +24,22 @@
         public async Task<bool> AddEventMember(EventMemberViewModel objEventMemberViewModel)
         {
             var objEventMember = new EventMember
-            {
-                Id = objEventMemberViewModel.Id,
-                UserId = objEventMemberViewModel.UserId,
-                EventId = objEventMemberViewModel.EventId,
-                CreatedDate = DateTime.Now,
-                IsActive = objEventMemberViewModel.IsActive
-            };
+                                     {
+                                         UserId = objEventMemberViewModel.UserId,
+                                         EventId = objEventMemberViewModel.EventId,
+                                         CreatedDate = DateTime.Now,
+                                         IsActive = objEventMemberViewModel.IsActive
+                                     };
 
             this.entities.EventMembers.Add(objEventMember);
             await this.entities.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> CheckEventUserExist(long userId, long eventId)
+        {
+            var eventExist = await this.entities.EventMembers.AnyAsync(x => x.UserId == userId && x.EventId == eventId);
+            return eventExist;
         }
 
         public async Task<bool> DeleteEventMember(int id)
@@ -50,7 +57,8 @@
 
         public async Task<bool> EditEventMember(EventMemberViewModel objEventMemberViewModel)
         {
-            var objEventMember = await this.entities.EventMembers.FirstOrDefaultAsync(x => x.Id == objEventMemberViewModel.Id);
+            var objEventMember =
+                await this.entities.EventMembers.FirstOrDefaultAsync(x => x.Id == objEventMemberViewModel.Id);
 
             if (objEventMember == null)
             {
@@ -62,7 +70,7 @@
             objEventMember.CreatedDate = objEventMemberViewModel.CreatedDate;
             objEventMember.IsActive = objEventMemberViewModel.IsActive;
 
-            this.entities.Entry(objEventMember).State = System.Data.Entity.EntityState.Modified;
+            this.entities.Entry(objEventMember).State = EntityState.Modified;
             await this.entities.SaveChangesAsync();
 
             return true;
@@ -87,12 +95,6 @@
             {
                 this.conn.Close();
             }
-        }
-
-        public async Task<bool> CheckEventUserExist(long userId, long eventId)
-        {
-            var eventExist = await this.entities.EventMembers.AnyAsync(x => x.UserId == userId && x.EventId == eventId);
-            return eventExist;
         }
     }
 }
