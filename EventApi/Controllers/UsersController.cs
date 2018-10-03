@@ -20,30 +20,35 @@
         [HttpPost]
         [Route("api/Users/Register")]
         [AllowAnonymous]
-        public async Task<IHttpActionResult> Register(AccountViewModel accountViewModel)
+        public async Task<IHttpActionResult> Register(RegisterViewModel objRegisterViewModel)
         {
             IHttpActionResult returnResult;
-            if (this.Validation(accountViewModel, out returnResult))
+            if (this.RegisterValidation(objRegisterViewModel, out returnResult))
             {
                 return returnResult;
             }
 
-            var checkEmailExist = await this.userRepository.CheckEmailExist(accountViewModel.Email);
+            if (this.Validation(new AccountViewModel { Email = objRegisterViewModel.Email, Password = objRegisterViewModel.Password }, out returnResult))
+            {
+                return returnResult;
+            }
+
+            var checkEmailExist = await this.userRepository.CheckEmailExist(objRegisterViewModel.Email);
 
             if (checkEmailExist)
             {
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User already exist", null));
             }
 
-            await this.userRepository.Register(accountViewModel);
+            await this.userRepository.Register(objRegisterViewModel);
 
-            var userId = await this.userRepository.GetUserIdByEmail(accountViewModel.Email);
+            var userId = await this.userRepository.GetUserIdByEmail(objRegisterViewModel.Email);
 
             var response = new
             {
                 userId,
-                email = accountViewModel.Email,
-                token = JwtProvider.GenerateToken(accountViewModel.Email, Convert.ToString(userId))
+                email = objRegisterViewModel.Email,
+                token = JwtProvider.GenerateToken(objRegisterViewModel.Email, Convert.ToString(userId))
             };
 
             return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Register successfully!!", response));
@@ -77,6 +82,63 @@
             };
 
             return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Login successfully!!", response));
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("ForgotPassword/{email}")]
+        public async Task<IHttpActionResult> ForgotPassword(string email)
+        {
+            var objUser = await userRepository.CheckEmailExist(email);
+
+            if (!objUser)
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Please Register First", null));
+
+            var code = Utility.GetCode();
+
+            //objUser.ForgotPasswordCode = code;
+            //_userRepository.Update(objUser);
+            //await _userRepository.CommitAsync();
+
+            //var url = _emailOptions.Value.FrontendUrl + "/resetpassword?Confirmationcode=" + code;
+            //await Utility.Utility.SendMailUsingSendGrid(_emailOptions, objUser.Email,
+            //    "Reset password with Lister exchange",
+            //    Utility.Utility.PopulateForgotPasswordBody(_hostingEnvironment.ContentRootPath, objUser.FirstName,
+            //        url));
+
+
+            return Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok,
+                "New Password Confirmation Link sent. Please Check Your Mail Box.", null));
+        }
+
+        private bool RegisterValidation(RegisterViewModel objRegisterViewModel, out IHttpActionResult returnResult)
+        {
+            if (objRegisterViewModel.Firstname.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter firstname", null));
+                return true;
+            }
+
+            if (objRegisterViewModel.Lastname.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter lastname", null));
+                return true;
+            }
+
+            if (objRegisterViewModel.Mobile.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter mobile no", null));
+                return true;
+            }
+
+            if (objRegisterViewModel.Mobile.IsMobileNo())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid mobile no", null));
+                return true;
+            }
+
+            returnResult = null;
+            return false;
         }
 
         private bool Validation(AccountViewModel objAccountViewModel, out IHttpActionResult returnResult)

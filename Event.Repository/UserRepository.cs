@@ -30,12 +30,15 @@
                        x => x.Email.ToLower() == email.ToLower() && x.Password == password);
         }
 
-        public async Task<bool> Register(AccountViewModel accountViewModel)
+        public async Task<bool> Register(RegisterViewModel registerViewModel)
         {
             var objUser = new User
             {
-                Email = accountViewModel.Email,
-                Password = EncryptDecrypt.Encrypt(accountViewModel.Password),
+                Firstname = registerViewModel.Firstname,
+                Lastname = registerViewModel.Lastname,
+                Email = registerViewModel.Email,
+                Password = EncryptDecrypt.Encrypt(registerViewModel.Password),
+                Mobile = registerViewModel.Mobile,
                 CreateDate = DateTime.Now
             };
             this.entities.Users.Add(objUser);
