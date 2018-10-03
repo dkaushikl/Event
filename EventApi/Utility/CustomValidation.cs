@@ -1,5 +1,6 @@
 ﻿namespace EventApi.Utility
 {
+    using System;
     using System.Text.RegularExpressions;
 
     public static class CustomValidation
@@ -11,5 +12,9 @@
         public static bool IsEmpty(this string str) => string.IsNullOrEmpty(str);
 
         public static bool IsPassword(this string password) => password.Length >= 8 && password.Length <= 15;
+
+        public static bool IsValidTimeFormat(this string input) => TimeSpan.TryParse(input, out var _);
+
+        public static bool IsValidDateFormat(this string objDate) => DateTime.TryParseExact(objDate, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var _);
     }
 }

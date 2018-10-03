@@ -27,9 +27,10 @@
         [Route("api/CompanyMember/InsertCompanyMember")]
         public async Task<IHttpActionResult> AddCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
         {
-            if (!this.ModelState.IsValid)
+            IHttpActionResult returnResult;
+            if (this.Validation(objCompanyMemberViewModel, out returnResult))
             {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!", null));
+                return returnResult;
             }
 
             var checkEmailExist = await this.userRepository.CheckEmailExist(objCompanyMemberViewModel.Email);
@@ -78,9 +79,10 @@
         [Route("api/CompanyMember/UpdateCompanyMember")]
         public async Task<IHttpActionResult> EditCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
         {
-            if (!this.ModelState.IsValid)
+            IHttpActionResult returnResult;
+            if (this.Validation(objCompanyMemberViewModel, out returnResult))
             {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!", null));
+                return returnResult;
             }
 
             var checkEmailExist = await this.userRepository.CheckEmailExist(objCompanyMemberViewModel.Email);
@@ -120,6 +122,24 @@
                            : null;
 
             return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", data));
+        }
+
+        private bool Validation(CompanyMemberViewModel objCompanyMemberViewModel, out IHttpActionResult returnResult)
+        {
+            if (objCompanyMemberViewModel.Email.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter email address", null));
+                return true;
+            }
+
+            if (!objCompanyMemberViewModel.Email.IsEmail())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid email", null));
+                return true;
+            }
+
+            returnResult = null;
+            return false;
         }
     }
 }

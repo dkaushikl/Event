@@ -153,9 +153,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Utility\CustomValidation.cs" />
-    <Compile Include="Utility\JwtToken\AddChallengeOnUnauthorizedResult.cs" />
     <Compile Include="Utility\JwtToken\AuthenticationFailureResult.cs" />
-    <Compile Include="Utility\JwtToken\HttpAuthenticationChallengeContextExtensions.cs" />
     <Compile Include="Utility\JwtToken\JwtAuthenticationAttribute.cs" />
     <Compile Include="Utility\JwtToken\JwtManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

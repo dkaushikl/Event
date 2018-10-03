@@ -21,9 +21,10 @@
         [Route("api/Event/InsertEvent")]
         public async Task<IHttpActionResult> AddEvent(EventViewModel objEventViewModel)
         {
-            if (!this.ModelState.IsValid)
+            IHttpActionResult returnResult;
+            if (this.Validation(objEventViewModel, out returnResult))
             {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!", null));
+                return returnResult;
             }
 
             var objEvent = await this.eventRepository.GetEventByName(objEventViewModel.Name, 0);
@@ -57,9 +58,10 @@
         [Route("api/Event/UpdateEvent")]
         public async Task<IHttpActionResult> EditEvent(EventViewModel objEventViewModel)
         {
-            if (!this.ModelState.IsValid)
+            IHttpActionResult returnResult;
+            if (this.Validation(objEventViewModel, out returnResult))
             {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!", null));
+                return returnResult;
             }
 
             var objEvent = await this.eventRepository.GetEventByName(objEventViewModel.Name, objEventViewModel.Id);
@@ -89,6 +91,54 @@
                            : null;
 
             return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", data));
+        }
+
+        private bool Validation(EventViewModel objEventViewModel, out IHttpActionResult returnResult)
+        {
+            if (objEventViewModel.Name.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter event name", null));
+                return true;
+            }
+
+            if (objEventViewModel.Vanue.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter vanue", null));
+                return true;
+            }
+
+            if (objEventViewModel.Description.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter description", null));
+                return true;
+            }
+
+            if (objEventViewModel.StartDate.IsValidDateFormat())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter description", null));
+                return true;
+            }
+
+            if (objEventViewModel.StartTime.IsValidTimeFormat())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid start time", null));
+                return true;
+            }
+
+            if (objEventViewModel.EndDate.IsValidDateFormat())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter description", null));
+                return true;
+            }
+
+            if (objEventViewModel.EndTime.IsValidTimeFormat())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid end time", null));
+                return true;
+            }
+
+            returnResult = null;
+            return false;
         }
     }
 }

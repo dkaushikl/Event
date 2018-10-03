@@ -22,11 +22,6 @@
         [Route("api/Company/InsertCompany")]
         public async Task<IHttpActionResult> AddCompany(CompanyViewModel objCompanyViewModel)
         {
-            if (!this.ModelState.IsValid)
-            {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!", null));
-            }
-
             IHttpActionResult returnResult;
             if (this.Validation(objCompanyViewModel, out returnResult))
             {
@@ -66,11 +61,6 @@
         [Route("api/Company/UpdateCompany")]
         public async Task<IHttpActionResult> EditCompany(CompanyViewModel objCompanyViewModel)
         {
-            if (!this.ModelState.IsValid)
-            {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!", null));
-            }
-
             IHttpActionResult returnResult;
             if (this.Validation(objCompanyViewModel, out returnResult))
             {

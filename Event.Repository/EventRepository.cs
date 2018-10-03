@@ -24,19 +24,19 @@
         public async Task<bool> AddEvent(EventViewModel objEventViewModel)
         {
             var objEvent = new Event
-                               {
-                                   Name = objEventViewModel.Name,
-                                   CompanyId = objEventViewModel.CompanyId,
-                                   Description = objEventViewModel.Description,
-                                   Vanue = objEventViewModel.Vanue,
-                                   StartDate = objEventViewModel.StartDate,
-                                   StartTime = objEventViewModel.StartTime,
-                                   EndDate = objEventViewModel.EndDate,
-                                   EndTime = objEventViewModel.EndTime,
-                                   CreatedBy = objEventViewModel.CreatedBy,
-                                   CreatedDate = DateTime.Now,
-                                   IsActive = objEventViewModel.IsActive
-                               };
+            {
+                Name = objEventViewModel.Name,
+                CompanyId = objEventViewModel.CompanyId,
+                Description = objEventViewModel.Description,
+                Vanue = objEventViewModel.Vanue,
+                StartDate = Convert.ToDateTime(objEventViewModel.StartDate),
+                StartTime = TimeSpan.Parse(objEventViewModel.StartTime),
+                EndDate = Convert.ToDateTime(objEventViewModel.EndDate),
+                EndTime = TimeSpan.Parse(objEventViewModel.EndTime),
+                CreatedBy = objEventViewModel.CreatedBy,
+                CreatedDate = DateTime.Now,
+                IsActive = objEventViewModel.IsActive
+            };
             this.entities.Events.Add(objEvent);
             await this.entities.SaveChangesAsync();
             return true;
@@ -68,10 +68,10 @@
             objEvent.CompanyId = objEventViewModel.CompanyId;
             objEvent.Description = objEventViewModel.Description;
             objEvent.Vanue = objEventViewModel.Vanue;
-            objEvent.StartDate = objEventViewModel.StartDate;
-            objEvent.StartTime = objEventViewModel.StartTime;
-            objEvent.EndDate = objEventViewModel.EndDate;
-            objEvent.EndTime = objEventViewModel.EndTime;
+            objEvent.StartDate = Convert.ToDateTime(objEventViewModel.StartDate);
+            objEvent.StartTime = TimeSpan.Parse(objEventViewModel.StartTime);
+            objEvent.EndDate = Convert.ToDateTime(objEventViewModel.EndDate);
+            objEvent.EndTime = TimeSpan.Parse(objEventViewModel.EndTime);
             objEvent.CreatedBy = objEventViewModel.CreatedBy;
             objEvent.IsActive = objEventViewModel.IsActive;
 
