@@ -24,18 +24,18 @@
         public async Task<bool> AddCompany(CompanyViewModel objCompanyViewModel)
         {
             var objCompany = new Company
-                                 {
-                                     Name = objCompanyViewModel.Name,
-                                     Address = objCompanyViewModel.Address,
-                                     City = objCompanyViewModel.City,
-                                     Country = objCompanyViewModel.Country,
-                                     Email = objCompanyViewModel.Email,
-                                     MobileNo = objCompanyViewModel.MobileNo,
-                                     State = objCompanyViewModel.State,
-                                     CreatedBy = objCompanyViewModel.CreatedBy,
-                                     CreatedDate = DateTime.Now,
-                                     IsActive = objCompanyViewModel.IsActive
-                                 };
+            {
+                Name = objCompanyViewModel.Name,
+                Address = objCompanyViewModel.Address,
+                City = objCompanyViewModel.City,
+                Country = objCompanyViewModel.Country,
+                Email = objCompanyViewModel.Email,
+                MobileNo = objCompanyViewModel.MobileNo,
+                State = objCompanyViewModel.State,
+                CreatedBy = objCompanyViewModel.CreatedBy,
+                CreatedDate = DateTime.Now,
+                IsActive = objCompanyViewModel.IsActive
+            };
 
             this.entities.Companies.Add(objCompany);
             await this.entities.SaveChangesAsync();
@@ -59,7 +59,7 @@
         {
             var objCompany = await this.entities.Companies.FirstOrDefaultAsync(x => x.Id == objCompanyViewModel.Id);
 
-            if (objCompany == null)
+            if (objCompany?.CreatedBy != objCompanyViewModel.CreatedBy)
             {
                 return false;
             }

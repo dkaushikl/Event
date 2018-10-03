@@ -18,72 +18,50 @@
         public UsersController(IUserRepository userRepository) => this.userRepository = userRepository;
 
         [HttpPost]
-        [Route("api/CreateUser")]
+        [Route("api/Users/Register")]
         [AllowAnonymous]
-        public async Task<IHttpActionResult> CreateUser(RegisterViewModel registerViewModel)
+        public async Task<IHttpActionResult> Register(AccountViewModel accountViewModel)
         {
-            if (string.IsNullOrWhiteSpace(registerViewModel.Email))
+            IHttpActionResult returnResult;
+            if (this.Validation(accountViewModel, out returnResult))
             {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter email address!!", null));
+                return returnResult;
             }
 
-            var checkIsEmail = await registerViewModel.Email.IsEmail();
-
-            if (!checkIsEmail)
-            {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid email!!", null));
-            }
-
-            if (string.IsNullOrWhiteSpace(registerViewModel.Password))
-            {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter password!!", null));
-            }
-
-            var checkEmailExist = await this.userRepository.CheckEmailExist(registerViewModel.Email);
+            var checkEmailExist = await this.userRepository.CheckEmailExist(accountViewModel.Email);
 
             if (checkEmailExist)
             {
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User already exist", null));
             }
 
-            var objRegister = await this.userRepository.Register(registerViewModel);
+            await this.userRepository.Register(accountViewModel);
 
-            var userId = await this.userRepository.GetUserIdByEmail(registerViewModel.Email);
+            var userId = await this.userRepository.GetUserIdByEmail(accountViewModel.Email);
 
             var response = new
-                               {
-                                   userId,
-                                   email = registerViewModel.Email,
-                                   token = JwtProvider.GenerateToken(registerViewModel.Email, Convert.ToString(userId))
-                               };
+            {
+                userId,
+                email = accountViewModel.Email,
+                token = JwtProvider.GenerateToken(accountViewModel.Email, Convert.ToString(userId))
+            };
 
             return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Register successfully!!", response));
         }
 
         [HttpPost]
-        [Route("api/Login")]
+        [Route("api/Users/Login")]
         [AllowAnonymous]
-        public async Task<IHttpActionResult> Login(RegisterViewModel registerViewModel)
+        public async Task<IHttpActionResult> Login(AccountViewModel accountViewModel)
         {
-            if (string.IsNullOrWhiteSpace(registerViewModel.Email))
+            IHttpActionResult returnResult;
+            if (this.Validation(accountViewModel, out returnResult))
             {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter email address!!", null));
+                return returnResult;
             }
 
-            var checkIsEmail = await registerViewModel.Email.IsEmail();
-
-            if (!checkIsEmail)
-            {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid email!!", null));
-            }
-
-            if (string.IsNullOrWhiteSpace(registerViewModel.Password))
-            {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter password!!", null));
-            }
-
-            var password = EncryptDecrypt.Encrypt(registerViewModel.Password);
-            var objUser = await this.userRepository.Login(registerViewModel.Email, password);
+            var password = EncryptDecrypt.Encrypt(accountViewModel.Password);
+            var objUser = await this.userRepository.Login(accountViewModel.Email, password);
 
             if (objUser == null)
             {
@@ -92,13 +70,43 @@
             }
 
             var response = new
-                               {
-                                   userId = objUser.Id,
-                                   email = objUser.Email,
-                                   token = JwtProvider.GenerateToken(objUser.Email, Convert.ToString(objUser.Id))
-                               };
+            {
+                userId = objUser.Id,
+                email = objUser.Email,
+                token = JwtProvider.GenerateToken(objUser.Email, Convert.ToString(objUser.Id))
+            };
 
             return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Login successfully!!", response));
+        }
+
+        private bool Validation(AccountViewModel objAccountViewModel, out IHttpActionResult returnResult)
+        {
+            if (objAccountViewModel.Email.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter email address", null));
+                return true;
+            }
+
+            if (!objAccountViewModel.Email.IsEmail())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid email", null));
+                return true;
+            }
+
+            if (objAccountViewModel.Password.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter password", null));
+                return true;
+            }
+
+            if (!objAccountViewModel.Password.IsPassword())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Password length should be 8 to 15", null));
+                return true;
+            }
+
+            returnResult = null;
+            return false;
         }
     }
 }

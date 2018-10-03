@@ -27,6 +27,12 @@
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!", null));
             }
 
+            IHttpActionResult returnResult;
+            if (this.Validation(objCompanyViewModel, out returnResult))
+            {
+                return returnResult;
+            }
+
             var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name, 0);
 
             if (objCompany)
@@ -65,6 +71,12 @@
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter All data!!", null));
             }
 
+            IHttpActionResult returnResult;
+            if (this.Validation(objCompanyViewModel, out returnResult))
+            {
+                return returnResult;
+            }
+
             var objCompany = await this.companyRepository.GetCompanyByName(
                                  objCompanyViewModel.Name,
                                  objCompanyViewModel.Id);
@@ -78,7 +90,7 @@
 
             return await this.companyRepository.EditCompany(objCompanyViewModel)
                        ? this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Company updated successfully!!", null))
-                       : this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company not found!!", null));
+                       : this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "You have not authorized to change company detail!!", null));
         }
 
         [Authorize]
@@ -97,6 +109,42 @@
                            : null;
 
             return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", data));
+        }
+
+        private bool Validation(CompanyViewModel objCompanyViewModel, out IHttpActionResult returnResult)
+        {
+            if (objCompanyViewModel.Name.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter company name", null));
+                return true;
+            }
+
+            if (objCompanyViewModel.Email.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter email address", null));
+                return true;
+            }
+
+            if (!objCompanyViewModel.Email.IsEmail())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid email", null));
+                return true;
+            }
+
+            if (!objCompanyViewModel.MobileNo.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter mobile no", null));
+                return true;
+            }
+
+            if (!objCompanyViewModel.MobileNo.IsMobileNo())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid mobile no", null));
+                return true;
+            }
+
+            returnResult = null;
+            return false;
         }
     }
 }

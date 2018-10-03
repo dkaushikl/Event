@@ -13,6 +13,6 @@
 
         Task<User> Login(string email, string password);
 
-        Task<bool> Register(RegisterViewModel registerViewModel);
+        Task<bool> Register(AccountViewModel accountViewModel);
     }
 }

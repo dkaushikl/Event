@@ -5,10 +5,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="EventModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self"
-              xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator"
-              xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation"
-              xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="EventModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Company">
           <Key>
             <PropertyRef Name="Id" />
@@ -204,8 +201,7 @@
             <End Role="EventMember" EntitySet="EventMember" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="EventModel" Alias="Self" annotation:UseStrongSpatialTypes="false"
@@ -263,10 +259,8 @@
           <Property Name="CreatedBy" Type="Int64" Nullable="false" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="User" Relationship="EventModel.FK_Company_User" FromRole="Company" ToRole="User" />
-          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_Company"
-                              FromRole="Company" ToRole="CompanyMember" />
-          <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_Company" FromRole="Company"
-                              ToRole="Event" />
+          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_Company" FromRole="Company" ToRole="CompanyMember" />
+          <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_Company" FromRole="Company" ToRole="Event" />
         </EntityType>
         <EntityType Name="CompanyMember">
           <Key>
@@ -277,10 +271,8 @@
           <Property Name="UserId" Type="Int64" Nullable="false" />
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Company" Relationship="EventModel.FK_CompanyMember_Company"
-                              FromRole="CompanyMember" ToRole="Company" />
-          <NavigationProperty Name="User" Relationship="EventModel.FK_CompanyMember_User" FromRole="CompanyMember"
-                              ToRole="User" />
+          <NavigationProperty Name="Company" Relationship="EventModel.FK_CompanyMember_Company" FromRole="CompanyMember" ToRole="Company" />
+          <NavigationProperty Name="User" Relationship="EventModel.FK_CompanyMember_User" FromRole="CompanyMember" ToRole="User" />
         </EntityType>
         <EntityType Name="Event">
           <Key>
@@ -289,8 +281,7 @@
           <Property Name="Id" Type="Int64" Nullable="false" />
           <Property Name="CompanyId" Type="Int64" Nullable="false" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" Nullable="false" MaxLength="Max" FixedLength="false"
-                    Unicode="true" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Vanue" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="StartDate" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="StartTime" Type="Time" Nullable="false" Precision="7" />
@@ -299,11 +290,9 @@
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="CreatedBy" Type="Int64" Nullable="false" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Company" Relationship="EventModel.FK_Event_Company" FromRole="Event"
-                              ToRole="Company" />
+          <NavigationProperty Name="Company" Relationship="EventModel.FK_Event_Company" FromRole="Event" ToRole="Company" />
           <NavigationProperty Name="User" Relationship="EventModel.FK_Event_User" FromRole="Event" ToRole="User" />
-          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_Event" FromRole="Event"
-                              ToRole="EventMember" />
+          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_Event" FromRole="Event" ToRole="EventMember" />
         </EntityType>
         <EntityType Name="EventMember">
           <Key>
@@ -314,10 +303,8 @@
           <Property Name="UserId" Type="Int64" Nullable="false" />
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Event" Relationship="EventModel.FK_EventMember_Event" FromRole="EventMember"
-                              ToRole="Event" />
-          <NavigationProperty Name="User" Relationship="EventModel.FK_EventMember_User" FromRole="EventMember"
-                              ToRole="User" />
+          <NavigationProperty Name="Event" Relationship="EventModel.FK_EventMember_Event" FromRole="EventMember" ToRole="Event" />
+          <NavigationProperty Name="User" Relationship="EventModel.FK_EventMember_User" FromRole="EventMember" ToRole="User" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -333,13 +320,10 @@
           <Property Name="Gender" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Companies" Relationship="EventModel.FK_Company_User" FromRole="User"
-                              ToRole="Company" />
-          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_User" FromRole="User"
-                              ToRole="CompanyMember" />
+          <NavigationProperty Name="Companies" Relationship="EventModel.FK_Company_User" FromRole="User" ToRole="Company" />
+          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_User" FromRole="User" ToRole="CompanyMember" />
           <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_User" FromRole="User" ToRole="Event" />
-          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_User" FromRole="User"
-                              ToRole="EventMember" />
+          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_User" FromRole="User" ToRole="EventMember" />
         </EntityType>
         <Association Name="FK_Company_User">
           <End Type="EventModel.User" Role="User" Multiplicity="1">
