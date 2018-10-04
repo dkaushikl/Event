@@ -5,11 +5,7 @@
     using System.Data;
     using System.IO;
     using System.Linq;
-    using System.Security.Cryptography;
-    using System.Text;
     using System.Web.Hosting;
-
-    using Newtonsoft.Json;
 
     public static class Utility
     {
@@ -56,7 +52,7 @@
 
             return obj;
         }
-        
+
         public static void WriteLog(string text)
         {
             text += Environment.NewLine;

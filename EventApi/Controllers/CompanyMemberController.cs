@@ -112,10 +112,7 @@
         [Route("api/CompanyMember/GetAllCompanyMember")]
         public async Task<IHttpActionResult> GetAllCompanyMember(int pageIndex, int pageSize, int companyId)
         {
-            var objResult = await this.companyMemberRepository.GetAllCompanyMember(
-                                pageIndex,
-                                pageSize,
-                                companyId);
+            var objResult = await this.companyMemberRepository.GetAllCompanyMember(pageIndex, pageSize, companyId);
 
             var data = objResult.Columns.Count > 0
                            ? Utility.ConvertDataTable<CompanyMemberDisplayViewModel>(objResult).ToList()

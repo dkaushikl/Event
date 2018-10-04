@@ -15,22 +15,23 @@
             this.Request = request;
         }
 
-        public HttpRequestMessage Request { get; }
-
         public object JsonContent { get; }
 
-        public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken) => Task.FromResult(this.Execute());
+        public HttpRequestMessage Request { get; }
+
+        public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken) =>
+            Task.FromResult(this.Execute());
 
         private HttpResponseMessage Execute()
         {
             var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
-            {
-                RequestMessage = this.Request,
-                Content = new ObjectContent(
-                            this.JsonContent.GetType(),
-                            this.JsonContent,
-                            new JsonMediaTypeFormatter())
-            };
+                               {
+                                   RequestMessage = this.Request,
+                                   Content = new ObjectContent(
+                                       this.JsonContent.GetType(),
+                                       this.JsonContent,
+                                       new JsonMediaTypeFormatter())
+                               };
             return response;
         }
     }

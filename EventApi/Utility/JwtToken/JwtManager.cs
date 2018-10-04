@@ -34,25 +34,57 @@
 
             var now = DateTime.UtcNow;
             var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject =
+                                      {
+                                          Subject =
                                               new ClaimsIdentity(
                                                   new[]
                                                       {
                                                           new Claim(ClaimTypes.Name, userId),
                                                           new Claim(ClaimTypes.Email, email)
                                                       }),
-                Expires =
+                                          Expires =
                                               now.AddMinutes(Convert.ToInt32(expireMinutes)),
-                SigningCredentials = new SigningCredentials(
+                                          SigningCredentials = new SigningCredentials(
                                               new SymmetricSecurityKey(symmetricKey),
                                               SecurityAlgorithms.HmacSha256Signature)
-            };
+                                      };
 
             var stoken = tokenHandler.CreateToken(tokenDescriptor);
             var token = tokenHandler.WriteToken(stoken);
 
             return token;
+        }
+
+        public static ClaimsPrincipal GetPrincipal(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                if (!(tokenHandler.ReadToken(token) is JwtSecurityToken))
+                {
+                    return null;
+                }
+
+                var symmetricKey = Convert.FromBase64String(Secret);
+
+                var validationParameters = new TokenValidationParameters
+                                               {
+                                                   RequireExpirationTime = true,
+                                                   ValidateIssuer = false,
+                                                   ValidateAudience = false,
+                                                   IssuerSigningKey =
+                                                       new SymmetricSecurityKey(symmetricKey)
+                                               };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static bool ValidateToken(string token, out string email, out string userId)
@@ -79,38 +111,6 @@
             userId = userIdClaim?.Value;
 
             return !string.IsNullOrEmpty(email);
-        }
-
-        public static ClaimsPrincipal GetPrincipal(string token)
-        {
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-
-                if (!(tokenHandler.ReadToken(token) is JwtSecurityToken))
-                {
-                    return null;
-                }
-
-                var symmetricKey = Convert.FromBase64String(Secret);
-
-                var validationParameters = new TokenValidationParameters
-                {
-                    RequireExpirationTime = true,
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    IssuerSigningKey =
-                                                       new SymmetricSecurityKey(symmetricKey)
-                };
-
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-
-                return principal;
-            }
-            catch
-            {
-                return null;
-            }
         }
     }
 }

@@ -22,11 +22,14 @@
                 return;
             }
 
-            const string ErrorMessage = "The account being accessed does not have sufficient permissions to execute this operation.";
+            const string ErrorMessage =
+                "The account being accessed does not have sufficient permissions to execute this operation.";
 
             if (string.IsNullOrEmpty(authorization.Parameter))
             {
-                context.ErrorResult = new AuthenticationFailureResult(new { Error = true, Message = ErrorMessage }, request);
+                context.ErrorResult = new AuthenticationFailureResult(
+                    new { Error = true, Message = ErrorMessage },
+                    request);
                 return;
             }
 
@@ -35,7 +38,9 @@
 
             if (principal == null)
             {
-                context.ErrorResult = new AuthenticationFailureResult(new { Error = true, Message = ErrorMessage }, request);
+                context.ErrorResult = new AuthenticationFailureResult(
+                    new { Error = true, Message = ErrorMessage },
+                    request);
             }
             else
             {
@@ -43,7 +48,8 @@
             }
         }
 
-        public Task ChallengeAsync(HttpAuthenticationChallengeContext context, CancellationToken cancellationToken) => Task.FromResult(0);
+        public Task ChallengeAsync(HttpAuthenticationChallengeContext context, CancellationToken cancellationToken) =>
+            Task.FromResult(0);
 
         protected Task<IPrincipal> AuthenticateJwtToken(string token)
         {

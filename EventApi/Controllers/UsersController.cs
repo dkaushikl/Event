@@ -18,40 +18,33 @@
         public UsersController(IUserRepository userRepository) => this.userRepository = userRepository;
 
         [HttpPost]
-        [Route("api/Users/Register")]
         [AllowAnonymous]
-        public async Task<IHttpActionResult> Register(RegisterViewModel objRegisterViewModel)
+        [Route("ForgotPassword/{email}")]
+        public async Task<IHttpActionResult> ForgotPassword(string email)
         {
-            IHttpActionResult returnResult;
-            if (this.RegisterValidation(objRegisterViewModel, out returnResult))
+            var objUser = await this.userRepository.CheckEmailExist(email);
+
+            if (!objUser)
             {
-                return returnResult;
+                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Please Register First", null));
             }
 
-            if (this.Validation(new AccountViewModel { Email = objRegisterViewModel.Email, Password = objRegisterViewModel.Password }, out returnResult))
-            {
-                return returnResult;
-            }
+            var code = Utility.GetCode();
 
-            var checkEmailExist = await this.userRepository.CheckEmailExist(objRegisterViewModel.Email);
+            // objUser.ForgotPasswordCode = code;
+            // _userRepository.Update(objUser);
+            // await _userRepository.CommitAsync();
 
-            if (checkEmailExist)
-            {
-                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User already exist", null));
-            }
-
-            await this.userRepository.Register(objRegisterViewModel);
-
-            var userId = await this.userRepository.GetUserIdByEmail(objRegisterViewModel.Email);
-
-            var response = new
-            {
-                userId,
-                email = objRegisterViewModel.Email,
-                token = JwtProvider.GenerateToken(objRegisterViewModel.Email, Convert.ToString(userId))
-            };
-
-            return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Register successfully!!", response));
+            // var url = _emailOptions.Value.FrontendUrl + "/resetpassword?Confirmationcode=" + code;
+            // await Utility.Utility.SendMailUsingSendGrid(_emailOptions, objUser.Email,
+            // "Reset password with Lister exchange",
+            // Utility.Utility.PopulateForgotPasswordBody(_hostingEnvironment.ContentRootPath, objUser.FirstName,
+            // url));
+            return this.Ok(
+                ApiResponse.SetResponse(
+                    ApiResponseStatus.Ok,
+                    "New Password Confirmation Link sent. Please Check Your Mail Box.",
+                    null));
         }
 
         [HttpPost]
@@ -75,40 +68,56 @@
             }
 
             var response = new
-            {
-                userId = objUser.Id,
-                email = objUser.Email,
-                token = JwtProvider.GenerateToken(objUser.Email, Convert.ToString(objUser.Id))
-            };
+                               {
+                                   userId = objUser.Id,
+                                   fullname = $"{objUser.Firstname} {objUser.Firstname}",
+                                   email = objUser.Email,
+                                   token = JwtProvider.GenerateToken(objUser.Email, Convert.ToString(objUser.Id))
+                               };
 
             return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Login successfully!!", response));
         }
 
         [HttpPost]
+        [Route("api/Users/Register")]
         [AllowAnonymous]
-        [Route("ForgotPassword/{email}")]
-        public async Task<IHttpActionResult> ForgotPassword(string email)
+        public async Task<IHttpActionResult> Register(RegisterViewModel objRegisterViewModel)
         {
-            var objUser = await userRepository.CheckEmailExist(email);
+            IHttpActionResult returnResult;
+            if (this.RegisterValidation(objRegisterViewModel, out returnResult))
+            {
+                return returnResult;
+            }
 
-            if (!objUser)
-                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Please Register First", null));
+            if (this.Validation(
+                new AccountViewModel { Email = objRegisterViewModel.Email, Password = objRegisterViewModel.Password },
+                out returnResult))
+            {
+                return returnResult;
+            }
 
-            var code = Utility.GetCode();
+            var checkEmailExist = await this.userRepository.CheckEmailExist(objRegisterViewModel.Email);
 
-            //objUser.ForgotPasswordCode = code;
-            //_userRepository.Update(objUser);
-            //await _userRepository.CommitAsync();
+            if (checkEmailExist)
+            {
+                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User already exist", null));
+            }
 
-            //var url = _emailOptions.Value.FrontendUrl + "/resetpassword?Confirmationcode=" + code;
-            //await Utility.Utility.SendMailUsingSendGrid(_emailOptions, objUser.Email,
-            //    "Reset password with Lister exchange",
-            //    Utility.Utility.PopulateForgotPasswordBody(_hostingEnvironment.ContentRootPath, objUser.FirstName,
-            //        url));
+            await this.userRepository.Register(objRegisterViewModel);
 
+            var userId = await this.userRepository.GetUserIdByEmail(objRegisterViewModel.Email);
 
-            return Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok,
-                "New Password Confirmation Link sent. Please Check Your Mail Box.", null));
+            var response = new
+                               {
+                                   userId,
+                                   fullname = $"{objRegisterViewModel.Firstname} {objRegisterViewModel.Firstname}",
+                                   email = objRegisterViewModel.Email,
+                                   token = JwtProvider.GenerateToken(
+                                       objRegisterViewModel.Email,
+                                       Convert.ToString(userId))
+                               };
+
+            return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Register successfully!!", response));
         }
 
         private bool RegisterValidation(RegisterViewModel objRegisterViewModel, out IHttpActionResult returnResult)
@@ -163,7 +172,8 @@
 
             if (!objAccountViewModel.Password.IsPassword())
             {
-                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Password length should be 8 to 15", null));
+                returnResult = this.Ok(
+                    ApiResponse.SetResponse(ApiResponseStatus.Error, "Password length should be 8 to 15", null));
                 return true;
             }
 

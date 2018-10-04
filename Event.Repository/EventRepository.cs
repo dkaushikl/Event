@@ -24,19 +24,19 @@
         public async Task<bool> AddEvent(EventViewModel objEventViewModel)
         {
             var objEvent = new Event
-            {
-                Name = objEventViewModel.Name,
-                CompanyId = objEventViewModel.CompanyId,
-                Description = objEventViewModel.Description,
-                Vanue = objEventViewModel.Vanue,
-                StartDate = Convert.ToDateTime(objEventViewModel.StartDate),
-                StartTime = TimeSpan.Parse(objEventViewModel.StartTime),
-                EndDate = Convert.ToDateTime(objEventViewModel.EndDate),
-                EndTime = TimeSpan.Parse(objEventViewModel.EndTime),
-                CreatedBy = objEventViewModel.CreatedBy,
-                CreatedDate = DateTime.Now,
-                IsActive = objEventViewModel.IsActive
-            };
+                               {
+                                   Name = objEventViewModel.Name,
+                                   CompanyId = objEventViewModel.CompanyId,
+                                   Description = objEventViewModel.Description,
+                                   Vanue = objEventViewModel.Vanue,
+                                   StartDate = Convert.ToDateTime(objEventViewModel.StartDate),
+                                   StartTime = TimeSpan.Parse(objEventViewModel.StartTime),
+                                   EndDate = Convert.ToDateTime(objEventViewModel.EndDate),
+                                   EndTime = TimeSpan.Parse(objEventViewModel.EndTime),
+                                   CreatedBy = objEventViewModel.CreatedBy,
+                                   CreatedDate = DateTime.Now,
+                                   IsActive = objEventViewModel.IsActive
+                               };
             this.entities.Events.Add(objEvent);
             await this.entities.SaveChangesAsync();
             return true;
