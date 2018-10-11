@@ -80,7 +80,11 @@
 
             return await this.companyRepository.EditCompany(objCompanyViewModel)
                        ? this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Company updated successfully!!", null))
-                       : this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "You have not authorized to change company detail!!", null));
+                       : this.Ok(
+                           ApiResponse.SetResponse(
+                               ApiResponseStatus.Error,
+                               "You have not authorized to change company detail!!",
+                               null));
         }
 
         [Authorize]

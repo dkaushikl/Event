@@ -21,7 +21,8 @@
 
         public async Task<long> GetUserIdByEmail(string email)
         {
-            return await this.entities.Users.Where(x => x.Email.ToLower() == email.ToLower()).Select(x => x.Id).FirstOrDefaultAsync();
+            return await this.entities.Users.Where(x => x.Email.ToLower() == email.ToLower()).Select(x => x.Id)
+                       .FirstOrDefaultAsync();
         }
 
         public async Task<User> Login(string email, string password)
@@ -33,14 +34,14 @@
         public async Task<bool> Register(RegisterViewModel registerViewModel)
         {
             var objUser = new User
-            {
-                Firstname = registerViewModel.Firstname,
-                Lastname = registerViewModel.Lastname,
-                Email = registerViewModel.Email,
-                Password = EncryptDecrypt.Encrypt(registerViewModel.Password),
-                Mobile = registerViewModel.Mobile,
-                CreateDate = DateTime.Now
-            };
+                              {
+                                  Firstname = registerViewModel.Firstname,
+                                  Lastname = registerViewModel.Lastname,
+                                  Email = registerViewModel.Email,
+                                  Password = EncryptDecrypt.Encrypt(registerViewModel.Password),
+                                  Mobile = registerViewModel.Mobile,
+                                  CreateDate = DateTime.Now
+                              };
             this.entities.Users.Add(objUser);
             await this.entities.SaveChangesAsync();
             return true;

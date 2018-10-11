@@ -121,7 +121,8 @@
 
             if (objEventViewModel.StartTime.IsValidTimeFormat())
             {
-                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid start time", null));
+                returnResult = this.Ok(
+                    ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid start time", null));
                 return true;
             }
 
