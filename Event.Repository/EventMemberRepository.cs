@@ -16,10 +16,10 @@
 
     public class EventMemberRepository : IEventMemberRepository
     {
-        private readonly SqlConnection conn =
+        private readonly SqlConnection _conn =
             new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
 
-        private readonly EventEntities entities = new EventEntities();
+        private readonly EventEntities _entities = new EventEntities();
 
         public async Task<bool> AddEventMember(EventMemberViewModel objEventMemberViewModel)
         {
@@ -31,47 +31,42 @@
                                          IsActive = objEventMemberViewModel.IsActive
                                      };
 
-            this.entities.EventMembers.Add(objEventMember);
-            await this.entities.SaveChangesAsync();
+            this._entities.EventMembers.Add(objEventMember);
+            await this._entities.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> CheckEventUserExist(long userId, long eventId)
         {
-            var eventExist = await this.entities.EventMembers.AnyAsync(x => x.UserId == userId && x.EventId == eventId);
+            var eventExist =
+                await this._entities.EventMembers.AnyAsync(x => x.UserId == userId && x.EventId == eventId);
             return eventExist;
         }
 
         public async Task<bool> DeleteEventMember(int id)
         {
-            var eventDeactive = this.entities.EventMembers.FirstOrDefault(x => x.Id == id);
-            if (eventDeactive == null)
-            {
-                return false;
-            }
+            var eventDeactive = this._entities.EventMembers.FirstOrDefault(x => x.Id == id);
+            if (eventDeactive == null) return false;
 
-            this.entities.EventMembers.Remove(eventDeactive);
-            await this.entities.SaveChangesAsync();
+            this._entities.EventMembers.Remove(eventDeactive);
+            await this._entities.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> EditEventMember(EventMemberViewModel objEventMemberViewModel)
         {
             var objEventMember =
-                await this.entities.EventMembers.FirstOrDefaultAsync(x => x.Id == objEventMemberViewModel.Id);
+                await this._entities.EventMembers.FirstOrDefaultAsync(x => x.Id == objEventMemberViewModel.Id);
 
-            if (objEventMember == null)
-            {
-                return false;
-            }
+            if (objEventMember == null) return false;
 
             objEventMember.UserId = objEventMemberViewModel.UserId;
             objEventMember.EventId = objEventMemberViewModel.EventId;
             objEventMember.CreatedDate = objEventMemberViewModel.CreatedDate;
             objEventMember.IsActive = objEventMemberViewModel.IsActive;
 
-            this.entities.Entry(objEventMember).State = EntityState.Modified;
-            await this.entities.SaveChangesAsync();
+            this._entities.Entry(objEventMember).State = EntityState.Modified;
+            await this._entities.SaveChangesAsync();
 
             return true;
         }
@@ -86,14 +81,14 @@
                 objSqlParameters[2] = new SqlParameter("@PageIndex", pageIndex);
                 objSqlParameters[3] = new SqlParameter("@PageSize", pageSize);
                 return await SqlHelper.ExecuteDataTableAsync(
-                           this.conn,
+                           this._conn,
                            CommandType.StoredProcedure,
                            "GetAllEventMember",
                            objSqlParameters);
             }
             finally
             {
-                this.conn.Close();
+                this._conn.Close();
             }
         }
     }

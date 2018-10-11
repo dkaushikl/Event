@@ -1,6 +1,7 @@
 ﻿namespace EventApi
 {
     using System.Web.Http;
+
     using EventApi.Utility;
     using EventApi.Utility.JwtToken;
 

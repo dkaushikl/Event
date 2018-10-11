@@ -15,8 +15,8 @@
 
         Task<DataTable> GetAllCompany(int pageIndex, int pageSize, int userId);
 
-        Task<int> GetMaximumPage(int userId);
-
         Task<bool> GetCompanyByName(string name, long companyId);
+
+        Task<int> GetMaximumPage(int userId);
     }
 }

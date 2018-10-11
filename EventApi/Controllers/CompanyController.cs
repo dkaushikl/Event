@@ -15,7 +15,10 @@
     {
         private readonly ICompanyRepository companyRepository;
 
-        public CompanyController(ICompanyRepository companyRepository) => this.companyRepository = companyRepository;
+        public CompanyController(ICompanyRepository companyRepository)
+        {
+            this.companyRepository = companyRepository;
+        }
 
         [Authorize]
         [HttpPost]
@@ -23,17 +26,12 @@
         public async Task<IHttpActionResult> AddCompany(CompanyViewModel objCompanyViewModel)
         {
             IHttpActionResult returnResult;
-            if (this.Validation(objCompanyViewModel, out returnResult))
-            {
-                return returnResult;
-            }
+            if (this.Validation(objCompanyViewModel, out returnResult)) return returnResult;
 
             var objCompany = await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name, 0);
 
             if (objCompany)
-            {
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company already exist!!", null));
-            }
 
             objCompanyViewModel.CreatedBy = Convert.ToInt64(this.UserId);
 
@@ -48,9 +46,7 @@
         public async Task<IHttpActionResult> DeleteCompany(Entity objEntity)
         {
             if (string.IsNullOrEmpty(Convert.ToString(objEntity.Id)))
-            {
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter Valid Id!!", null));
-            }
 
             return await this.companyRepository.DeleteCompany(objEntity.Id)
                        ? this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Company deleted successfully!!", null))
@@ -62,19 +58,13 @@
         public async Task<IHttpActionResult> EditCompany(CompanyViewModel objCompanyViewModel)
         {
             IHttpActionResult returnResult;
-            if (this.Validation(objCompanyViewModel, out returnResult))
-            {
-                return returnResult;
-            }
+            if (this.Validation(objCompanyViewModel, out returnResult)) return returnResult;
 
-            var objCompany = await this.companyRepository.GetCompanyByName(
-                                 objCompanyViewModel.Name,
-                                 objCompanyViewModel.Id);
+            var objCompany =
+                await this.companyRepository.GetCompanyByName(objCompanyViewModel.Name, objCompanyViewModel.Id);
 
             if (objCompany)
-            {
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Company already exist!!", null));
-            }
 
             objCompanyViewModel.CreatedBy = Convert.ToInt64(this.UserId);
 
@@ -92,10 +82,8 @@
         [Route("api/Company/GetAllCompany")]
         public async Task<IHttpActionResult> GetAllCompany(int pageSize, int pageIndex)
         {
-            var objResult = await this.companyRepository.GetAllCompany(
-                                pageIndex,
-                                pageSize,
-                                Convert.ToInt32(this.UserId));
+            var objResult =
+                await this.companyRepository.GetAllCompany(pageIndex, pageSize, Convert.ToInt32(this.UserId));
 
             var data = objResult.Columns.Count > 0
                            ? Utility.ConvertDataTable<CompanyDisplayViewModel>(objResult).ToList()

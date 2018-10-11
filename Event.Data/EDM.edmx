@@ -5,7 +5,10 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="EventModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="EventModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self"
+              xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator"
+              xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation"
+              xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Company">
           <Key>
             <PropertyRef Name="Id" />
@@ -200,19 +203,21 @@ warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key
           <EntitySet Name="EventMember" EntityType="Self.EventMember" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ELMAH_Error" EntityType="Self.ELMAH_Error" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [ELMAH_Error].[ErrorId] AS [ErrorId], 
-    [ELMAH_Error].[Application] AS [Application], 
-    [ELMAH_Error].[Host] AS [Host], 
-    [ELMAH_Error].[Type] AS [Type], 
-    [ELMAH_Error].[Source] AS [Source], 
-    [ELMAH_Error].[Message] AS [Message], 
-    [ELMAH_Error].[User] AS [User], 
-    [ELMAH_Error].[StatusCode] AS [StatusCode], 
-    [ELMAH_Error].[TimeUtc] AS [TimeUtc], 
-    [ELMAH_Error].[Sequence] AS [Sequence], 
-    [ELMAH_Error].[AllXml] AS [AllXml]
-    FROM [dbo].[ELMAH_Error] AS [ELMAH_Error]</DefiningQuery>
+            <DefiningQuery>
+              SELECT
+              [ELMAH_Error].[ErrorId] AS [ErrorId],
+              [ELMAH_Error].[Application] AS [Application],
+              [ELMAH_Error].[Host] AS [Host],
+              [ELMAH_Error].[Type] AS [Type],
+              [ELMAH_Error].[Source] AS [Source],
+              [ELMAH_Error].[Message] AS [Message],
+              [ELMAH_Error].[User] AS [User],
+              [ELMAH_Error].[StatusCode] AS [StatusCode],
+              [ELMAH_Error].[TimeUtc] AS [TimeUtc],
+              [ELMAH_Error].[Sequence] AS [Sequence],
+              [ELMAH_Error].[AllXml] AS [AllXml]
+              FROM [dbo].[ELMAH_Error] AS [ELMAH_Error]
+            </DefiningQuery>
           </EntitySet>
           <AssociationSet Name="FK_Company_User" Association="Self.FK_Company_User">
             <End Role="User" EntitySet="User" />
@@ -243,7 +248,8 @@ warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key
             <End Role="EventMember" EntitySet="EventMember" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="EventModel" Alias="Self" annotation:UseStrongSpatialTypes="false"
@@ -293,7 +299,8 @@ warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key
           <Property Name="Id" Type="Int64" Nullable="false" />
           <Property Name="CompanyId" Type="Int64" Nullable="false" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="Max" FixedLength="false"
+                    Unicode="true" />
           <Property Name="Vanue" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="StartDate" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="StartTime" Type="Time" Nullable="false" Precision="7" />
@@ -302,8 +309,10 @@ warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="CreatedBy" Type="Int64" Nullable="false" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_Event" FromRole="Event" ToRole="EventMember" />
-          <NavigationProperty Name="Company" Relationship="EventModel.FK_Event_Company" FromRole="Event" ToRole="Company" />
+          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_Event" FromRole="Event"
+                              ToRole="EventMember" />
+          <NavigationProperty Name="Company" Relationship="EventModel.FK_Event_Company" FromRole="Event"
+                              ToRole="Company" />
           <NavigationProperty Name="User" Relationship="EventModel.FK_Event_User" FromRole="Event" ToRole="User" />
         </EntityType>
         <EntityType Name="EventMember">
@@ -315,8 +324,10 @@ warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key
           <Property Name="UserId" Type="Int64" Nullable="false" />
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Event" Relationship="EventModel.FK_EventMember_Event" FromRole="EventMember" ToRole="Event" />
-          <NavigationProperty Name="User" Relationship="EventModel.FK_EventMember_User" FromRole="EventMember" ToRole="User" />
+          <NavigationProperty Name="Event" Relationship="EventModel.FK_EventMember_Event" FromRole="EventMember"
+                              ToRole="Event" />
+          <NavigationProperty Name="User" Relationship="EventModel.FK_EventMember_User" FromRole="EventMember"
+                              ToRole="User" />
         </EntityType>
         <Association Name="FK_EventMember_Event">
           <End Type="EventModel.Event" Role="Event" Multiplicity="1">
@@ -346,9 +357,11 @@ warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key
           <Property Name="Country" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="CreatedBy" Type="Int64" Nullable="false" />
-          <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_Company" FromRole="Company" ToRole="Event" />
+          <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_Company" FromRole="Company"
+                              ToRole="Event" />
           <NavigationProperty Name="User" Relationship="EventModel.FK_Company_User" FromRole="Company" ToRole="User" />
-          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_Company" FromRole="Company" ToRole="CompanyMember" />
+          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_Company"
+                              FromRole="Company" ToRole="CompanyMember" />
         </EntityType>
         <Association Name="FK_Event_Company">
           <End Type="EventModel.Company" Role="Company" Multiplicity="1">
@@ -379,10 +392,13 @@ warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
           <Property Name="ForgotPasswordCode" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Companies" Relationship="EventModel.FK_Company_User" FromRole="User" ToRole="Company" />
+          <NavigationProperty Name="Companies" Relationship="EventModel.FK_Company_User" FromRole="User"
+                              ToRole="Company" />
           <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_User" FromRole="User" ToRole="Event" />
-          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_User" FromRole="User" ToRole="EventMember" />
-          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_User" FromRole="User" ToRole="CompanyMember" />
+          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_User" FromRole="User"
+                              ToRole="EventMember" />
+          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_User" FromRole="User"
+                              ToRole="CompanyMember" />
         </EntityType>
         <EntityType Name="ELMAH_Error">
           <Key>
@@ -456,8 +472,10 @@ warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key
           <Property Name="CompanyId" Type="Int64" Nullable="false" />
           <Property Name="UserId" Type="Int64" Nullable="false" />
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="Company" Relationship="EventModel.FK_CompanyMember_Company" FromRole="CompanyMember" ToRole="Company" />
-          <NavigationProperty Name="User" Relationship="EventModel.FK_CompanyMember_User" FromRole="CompanyMember" ToRole="User" />
+          <NavigationProperty Name="Company" Relationship="EventModel.FK_CompanyMember_Company"
+                              FromRole="CompanyMember" ToRole="Company" />
+          <NavigationProperty Name="User" Relationship="EventModel.FK_CompanyMember_User" FromRole="CompanyMember"
+                              ToRole="User" />
         </EntityType>
         <Association Name="FK_CompanyMember_Company">
           <End Type="EventModel.Company" Role="Company" Multiplicity="1" />

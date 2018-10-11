@@ -19,18 +19,12 @@
                 return null;
             }
 
-            if (string.IsNullOrEmpty(authorization.Parameter))
-            {
-                return null;
-            }
+            if (string.IsNullOrEmpty(authorization.Parameter)) return null;
 
             var token = authorization.Parameter;
 
             string userId;
-            if (!JwtProvider.ValidateToken(token, out var email, out userId))
-            {
-                return null;
-            }
+            if (!JwtProvider.ValidateToken(token, out var _, out userId)) return null;
 
             return Convert.ToInt32(userId);
         }

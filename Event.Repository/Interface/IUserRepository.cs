@@ -9,14 +9,16 @@
     {
         Task<bool> CheckEmailExist(string email);
 
+        Task<User> GetUserDetail(int userId);
+
         Task<long> GetUserIdByEmail(string email);
 
         Task<User> Login(string email, string password);
 
         Task<bool> Register(RegisterViewModel registerViewModel);
 
-        Task<bool> UpdateForgotPasswordCode(string forgotCode, string email);
-
         Task<bool> ResetPassword(ResetPasswordViewModel objResetPassword);
+
+        Task<bool> UpdateForgotPasswordCode(string forgotCode, string email);
     }
 }

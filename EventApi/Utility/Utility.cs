@@ -7,12 +7,8 @@
     using System.Linq;
     using System.Net;
     using System.Net.Mail;
-    using System.Security.Cryptography;
-    using System.Text;
     using System.Web;
     using System.Web.Hosting;
-
-    using Newtonsoft.Json;
 
     public static class Utility
     {
@@ -42,37 +38,26 @@
             var obj = Activator.CreateInstance<T>();
 
             foreach (DataColumn column in dr.Table.Columns)
-            {
-                foreach (var pro in temp.GetProperties())
-                {
-                    if (pro.Name == column.ColumnName)
-                    {
-                        pro.SetValue(obj, dr[column.ColumnName], null);
-                    }
-                    else
-                    {
-                        // ReSharper disable once RedundantJumpStatement
-                        continue;
-                    }
-                }
-            }
+            foreach (var pro in temp.GetProperties())
+                if (pro.Name == column.ColumnName) pro.SetValue(obj, dr[column.ColumnName], null);
+                else continue;
 
             return obj;
         }
-        
-        public static void WriteLog(string text)
+
+        public static string PopulateForgotPasswordBody(string email, string code)
         {
-            text += Environment.NewLine;
-            text += "-----------------------------------------------------------";
-
-            text += "-----------------------------------------------------------";
-
-            // ReSharper disable once AssignNullToNotNullAttribute
-            using (var objStream = new StreamWriter(HostingEnvironment.MapPath("~/Log.txt"), true))
+            var body = string.Empty;
+            using (var reader =
+                new StreamReader(HttpContext.Current.Server.MapPath("~//Templates/ForgotPassword.html")))
             {
-                objStream.Write(
-                    Environment.NewLine + " Inline Start  : " + text + " " + DateTime.Now.ToUniversalTime());
+                body = reader.ReadToEnd();
             }
+
+            body = body.Replace("{Email}", email);
+            body = body.Replace("{Code}", code);
+
+            return body;
         }
 
         public static void SendForgotPasswordMail(string email, string verificationCode)
@@ -81,24 +66,25 @@
             using (var mm = new MailMessage("elaunch.kaushik@gmail.com", email))
             {
                 mm.Subject = "AmbryHill Forgot Password";
-                mm.Body = "<table width='100%' border='0' cellspacing='0' cellpadding='0' style='margin-top:5px;'>" +
-                          "<tr><td align='left' valign='top' style='font-family:Pacifico, Arial, Helvetica, sans-serif; font-size:13px; color:#000;'>" +
-                          "<div style='font-size:28px; color:#669d89;'><br> Hello <span style='color:#f27c7e'> " + email +
-                          "</span></div>" +
-                          "<div> <br>A request to reset your password has been made on <a href='http://www.ambryhill.com' title='AmbryHill' alt='AmbryHill' target='_top'>http://www.ambryhill.com</a>," +
-                          " please follow the link below to reset your account password. If you have not requested a password reset please disregard this email.<br/><br>To reset your password:<br><br><a href='http://" +
-                          url + "/Account/SetPassword?id=" + verificationCode + "'>http://" + url + "/Account/SetPassword?id=" +
-                          verificationCode + "</a><br/><br/>Kind Regards,<br/><br/>The Ambryhill Team.</div></td></tr></table>";
+                mm.Body = "<table width='100%' border='0' cellspacing='0' cellpadding='0' style='margin-top:5px;'>"
+                          + "<tr><td align='left' valign='top' style='font-family:Pacifico, Arial, Helvetica, sans-serif; font-size:13px; color:#000;'>"
+                          + "<div style='font-size:28px; color:#669d89;'><br> Hello <span style='color:#f27c7e'> "
+                          + email + "</span></div>"
+                          + "<div> <br>A request to reset your password has been made on <a href='http://www.ambryhill.com' title='AmbryHill' alt='AmbryHill' target='_top'>http://www.ambryhill.com</a>,"
+                          + " please follow the link below to reset your account password. If you have not requested a password reset please disregard this email.<br/><br>To reset your password:<br><br><a href='http://"
+                          + url + "/Account/SetPassword?id=" + verificationCode + "'>http://" + url
+                          + "/Account/SetPassword?id=" + verificationCode
+                          + "</a><br/><br/>Kind Regards,<br/><br/>The Ambryhill Team.</div></td></tr></table>";
                 mm.IsBodyHtml = true;
                 var networkCred = new NetworkCredential("elaunch.kaushik@gmail.com", "Kaushik@elnch05#");
                 var smtp = new SmtpClient
-                {
-                    Host = "smtp.gmail.com",
-                    EnableSsl = true,
-                    UseDefaultCredentials = true,
-                    Credentials = networkCred,
-                    Port = 587
-                };
+                               {
+                                   Host = "smtp.gmail.com",
+                                   EnableSsl = true,
+                                   UseDefaultCredentials = true,
+                                   Credentials = networkCred,
+                                   Port = 587
+                               };
                 smtp.Send(mm);
             }
         }
@@ -127,17 +113,19 @@
             }
         }
 
-        public static string PopulateForgotPasswordBody(string email, string code)
+        public static void WriteLog(string text)
         {
-            string body = string.Empty;
-            using (var reader = new StreamReader(HttpContext.Current.Server.MapPath("~//Templates/ForgotPassword.html")))
-            {
-                body = reader.ReadToEnd();
-            }
-            body = body.Replace("{Email}", email);
-            body = body.Replace("{Code}", code);
+            text += Environment.NewLine;
+            text += "-----------------------------------------------------------";
 
-            return body;
+            text += "-----------------------------------------------------------";
+
+            // ReSharper disable once AssignNullToNotNullAttribute
+            using (var objStream = new StreamWriter(HostingEnvironment.MapPath("~/Log.txt"), true))
+            {
+                objStream.Write(
+                    Environment.NewLine + " Inline Start  : " + text + " " + DateTime.Now.ToUniversalTime());
+            }
         }
     }
 }

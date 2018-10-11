@@ -1,10 +1,11 @@
-﻿using Elmah;
-using System;
-using System.Web;
-using System.Web.Http.Filters;
-
-namespace EventApi.Utility
+﻿namespace EventApi.Utility
 {
+    using System;
+    using System.Web;
+    using System.Web.Http.Filters;
+
+    using Elmah;
+
     public class ElmahHandleWebApiErrorAttribute : ExceptionFilterAttribute
     {
         public override void OnException(HttpActionExecutedContext context)
@@ -13,16 +14,12 @@ namespace EventApi.Utility
             RaiseErrorSignal(e);
         }
 
-        private static bool RaiseErrorSignal(Exception e)
+        private static void RaiseErrorSignal(Exception e)
         {
             var context = HttpContext.Current;
-            if (context == null)
-                return false;
+            if (context == null) return;
             var signal = ErrorSignal.FromContext(context);
-            if (signal == null)
-                return false;
-            signal.Raise(e, context);
-            return true;
+            signal?.Raise(e, context);
         }
     }
 }

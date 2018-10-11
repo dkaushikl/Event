@@ -1,9 +1,9 @@
-﻿using System;
-using System.Net.Http.Headers;
-using System.Web.Http.Filters;
-
-namespace EventApi.Utility.JwtToken
+﻿namespace EventApi.Utility.JwtToken
 {
+    using System;
+    using System.Net.Http.Headers;
+    using System.Web.Http.Filters;
+
     public static class HttpAuthenticationChallengeContextExtensions
     {
         public static void ChallengeWith(this HttpAuthenticationChallengeContext context, string scheme)
@@ -11,17 +11,19 @@ namespace EventApi.Utility.JwtToken
             ChallengeWith(context, new AuthenticationHeaderValue(scheme));
         }
 
-        public static void ChallengeWith(this HttpAuthenticationChallengeContext context, string scheme, string parameter)
+        public static void ChallengeWith(
+            this HttpAuthenticationChallengeContext context,
+            string scheme,
+            string parameter)
         {
             ChallengeWith(context, new AuthenticationHeaderValue(scheme, parameter));
         }
 
-        public static void ChallengeWith(this HttpAuthenticationChallengeContext context, AuthenticationHeaderValue challenge)
+        public static void ChallengeWith(
+            this HttpAuthenticationChallengeContext context,
+            AuthenticationHeaderValue challenge)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             context.Result = new AddChallengeOnUnauthorizedResult(challenge, context.Result);
         }

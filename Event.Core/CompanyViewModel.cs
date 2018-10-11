@@ -1,7 +1,8 @@
 namespace Event.Core
 {
-    using Newtonsoft.Json;
     using System;
+
+    using Newtonsoft.Json;
 
     public class CompanyViewModel
     {

@@ -37,11 +37,11 @@ namespace Event.Core
 
     public class ResetPasswordViewModel
     {
-        [JsonProperty("email")]
-        public string Email { get; set; }
-
         [JsonProperty("code")]
         public string Code { get; set; }
+
+        [JsonProperty("email")]
+        public string Email { get; set; }
 
         [JsonProperty("password")]
         public string Password { get; set; }

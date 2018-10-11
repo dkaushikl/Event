@@ -33,21 +33,29 @@
                 MobileNo = objCompanyViewModel.MobileNo,
                 State = objCompanyViewModel.State,
                 CreatedBy = objCompanyViewModel.CreatedBy,
-                CreatedDate = DateTime.Now,
+                CreatedDate = DateTime.Now
             };
 
             this.entities.Companies.Add(objCompany);
             await this.entities.SaveChangesAsync();
+
+            var objCompanyMember = new CompanyMember
+            {
+                UserId = objCompanyViewModel.CreatedBy,
+                CompanyId = objCompany.Id,
+                CreatedDate = DateTime.Now
+            };
+
+            this.entities.CompanyMembers.Add(objCompanyMember);
+            await this.entities.SaveChangesAsync();
+
             return true;
         }
 
         public async Task<bool> DeleteCompany(int id)
         {
             var companyDeactive = this.entities.Companies.FirstOrDefault(x => x.Id == id);
-            if (companyDeactive == null)
-            {
-                return false;
-            }
+            if (companyDeactive == null) return false;
 
             this.entities.Companies.Remove(companyDeactive);
             await this.entities.SaveChangesAsync();
@@ -58,10 +66,7 @@
         {
             var objCompany = await this.entities.Companies.FirstOrDefaultAsync(x => x.Id == objCompanyViewModel.Id);
 
-            if (objCompany?.CreatedBy != objCompanyViewModel.CreatedBy)
-            {
-                return false;
-            }
+            if (objCompany?.CreatedBy != objCompanyViewModel.CreatedBy) return false;
 
             objCompany.Name = objCompanyViewModel.Name;
             objCompany.Address = objCompanyViewModel.Address;
@@ -100,8 +105,7 @@
         public async Task<bool> GetCompanyByName(string companyName, long companyId)
         {
             var companyExist =
-                await this.entities.Companies.AnyAsync(
-                    x => x.Id != companyId && x.Name.ToLower() == companyName.ToLower());
+                await this.entities.Companies.AnyAsync(x => x.Id != companyId && x.Name.ToLower() == companyName.ToLower());
             return companyExist;
         }
 

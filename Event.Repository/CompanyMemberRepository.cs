@@ -24,11 +24,11 @@
         public async Task<bool> AddCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
         {
             var objCompanyMember = new CompanyMember
-            {
-                UserId = objCompanyMemberViewModel.UserId,
-                CompanyId = objCompanyMemberViewModel.CompanyId,
-                CreatedDate = DateTime.Now,
-            };
+                                       {
+                                           UserId = objCompanyMemberViewModel.UserId,
+                                           CompanyId = objCompanyMemberViewModel.CompanyId,
+                                           CreatedDate = DateTime.Now
+                                       };
 
             this.entities.CompanyMembers.Add(objCompanyMember);
             await this.entities.SaveChangesAsync();
@@ -37,8 +37,7 @@
 
         public async Task<bool> CheckUserExist(long companyId, string email)
         {
-            var companyExist = await this.entities.CompanyMembers.AnyAsync(
-                                   x => x.CompanyId == companyId && x.User.Email.ToLower() == email.ToLower());
+            var companyExist = await this.entities.CompanyMembers.AnyAsync(x => x.CompanyId == companyId && x.User.Email.ToLower() == email.ToLower());
             return companyExist;
         }
 
@@ -46,10 +45,7 @@
         {
             var companyDeactive = this.entities.CompanyMembers.FirstOrDefault(x => x.Id == id);
 
-            if (companyDeactive == null)
-            {
-                return false;
-            }
+            if (companyDeactive == null) return false;
 
             this.entities.CompanyMembers.Remove(companyDeactive);
             await this.entities.SaveChangesAsync();
@@ -61,10 +57,7 @@
             var objCompanyMember =
                 await this.entities.CompanyMembers.FirstOrDefaultAsync(x => x.Id == objCompanyMemberViewModel.Id);
 
-            if (objCompanyMember == null)
-            {
-                return false;
-            }
+            if (objCompanyMember == null) return false;
 
             objCompanyMember.CompanyId = objCompanyMemberViewModel.CompanyId;
             objCompanyMember.UserId = objCompanyMemberViewModel.UserId;

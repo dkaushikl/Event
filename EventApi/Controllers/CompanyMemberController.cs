@@ -28,27 +28,20 @@
         public async Task<IHttpActionResult> AddCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
         {
             IHttpActionResult returnResult;
-            if (this.Validation(objCompanyMemberViewModel, out returnResult))
-            {
-                return returnResult;
-            }
+            if (this.Validation(objCompanyMemberViewModel, out returnResult)) return returnResult;
 
             var checkEmailExist = await this.userRepository.CheckEmailExist(objCompanyMemberViewModel.Email);
 
             if (!checkEmailExist)
-            {
                 return this.Ok(
                     ApiResponse.SetResponse(ApiResponseStatus.Error, "User not found. please register first!!", null));
-            }
 
             var objCompanyMember = await this.companyMemberRepository.CheckUserExist(
                                        objCompanyMemberViewModel.CompanyId,
                                        objCompanyMemberViewModel.Email);
 
             if (objCompanyMember)
-            {
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User already exist!!", null));
-            }
 
             objCompanyMemberViewModel.UserId =
                 await this.userRepository.GetUserIdByEmail(objCompanyMemberViewModel.Email);
@@ -64,9 +57,7 @@
         public async Task<IHttpActionResult> DeleteCompanyMember(Entity objEntity)
         {
             if (string.IsNullOrEmpty(Convert.ToString(objEntity.Id)))
-            {
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter Valid Id!!", null));
-            }
 
             return await this.companyMemberRepository.DeleteCompanyMember(objEntity.Id)
                        ? this.Ok(
@@ -80,27 +71,20 @@
         public async Task<IHttpActionResult> EditCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
         {
             IHttpActionResult returnResult;
-            if (this.Validation(objCompanyMemberViewModel, out returnResult))
-            {
-                return returnResult;
-            }
+            if (this.Validation(objCompanyMemberViewModel, out returnResult)) return returnResult;
 
             var checkEmailExist = await this.userRepository.CheckEmailExist(objCompanyMemberViewModel.Email);
 
             if (!checkEmailExist)
-            {
                 return this.Ok(
                     ApiResponse.SetResponse(ApiResponseStatus.Error, "User not found. please register first!!", null));
-            }
 
             var objCompanyMember = await this.companyMemberRepository.CheckUserExist(
                                        objCompanyMemberViewModel.CompanyId,
                                        objCompanyMemberViewModel.Email);
 
             if (objCompanyMember)
-            {
                 return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Member already exist!!", null));
-            }
 
             return await this.companyMemberRepository.EditCompanyMember(objCompanyMemberViewModel)
                        ? this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok, "Member updated successfully!!", null))
