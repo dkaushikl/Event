@@ -25,10 +25,11 @@ namespace Event.Data
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Company> Companies { get; set; }
-        public virtual DbSet<CompanyMember> CompanyMembers { get; set; }
         public virtual DbSet<Event> Events { get; set; }
         public virtual DbSet<EventMember> EventMembers { get; set; }
+        public virtual DbSet<Company> Companies { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<ELMAH_Error> ELMAH_Error { get; set; }
+        public virtual DbSet<CompanyMember> CompanyMembers { get; set; }
     }
 }

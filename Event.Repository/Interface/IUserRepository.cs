@@ -14,5 +14,9 @@
         Task<User> Login(string email, string password);
 
         Task<bool> Register(RegisterViewModel registerViewModel);
+
+        Task<bool> UpdateForgotPasswordCode(string forgotCode, string email);
+
+        Task<bool> ResetPassword(ResetPasswordViewModel objResetPassword);
     }
 }

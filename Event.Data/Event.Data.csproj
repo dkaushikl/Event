@@ -67,6 +67,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>EDM.edmx</DependentUpon>
     </Compile>
+    <Compile Include="ELMAH_Error.cs">
+      <DependentUpon>EDM.tt</DependentUpon>
+    </Compile>
     <Compile Include="Event.cs">
       <DependentUpon>EDM.tt</DependentUpon>
     </Compile>

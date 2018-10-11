@@ -34,7 +34,6 @@
                 State = objCompanyViewModel.State,
                 CreatedBy = objCompanyViewModel.CreatedBy,
                 CreatedDate = DateTime.Now,
-                IsActive = objCompanyViewModel.IsActive
             };
 
             this.entities.Companies.Add(objCompany);
@@ -71,7 +70,6 @@
             objCompany.Email = objCompanyViewModel.Email;
             objCompany.MobileNo = objCompanyViewModel.MobileNo;
             objCompany.State = objCompanyViewModel.State;
-            objCompany.IsActive = objCompanyViewModel.IsActive;
 
             this.entities.Entry(objCompany).State = EntityState.Modified;
             await this.entities.SaveChangesAsync();
@@ -79,15 +77,14 @@
             return true;
         }
 
-        public async Task<DataTable> GetAllCompany(int pageIndex, int pageSize, int userId, int? companyId = 0)
+        public async Task<DataTable> GetAllCompany(int pageIndex, int pageSize, int userId)
         {
             try
             {
-                var objSqlParameters = new SqlParameter[4];
-                objSqlParameters[0] = new SqlParameter("@CompanyId", companyId);
-                objSqlParameters[1] = new SqlParameter("@UserId", userId);
-                objSqlParameters[2] = new SqlParameter("@PageIndex", pageIndex);
-                objSqlParameters[3] = new SqlParameter("@PageSize", pageSize);
+                var objSqlParameters = new SqlParameter[3];
+                objSqlParameters[0] = new SqlParameter("@UserId", userId);
+                objSqlParameters[1] = new SqlParameter("@PageIndex", pageIndex);
+                objSqlParameters[2] = new SqlParameter("@PageSize", pageSize);
                 return await SqlHelper.ExecuteDataTableAsync(
                            this.conn,
                            CommandType.StoredProcedure,
@@ -106,6 +103,11 @@
                 await this.entities.Companies.AnyAsync(
                     x => x.Id != companyId && x.Name.ToLower() == companyName.ToLower());
             return companyExist;
+        }
+
+        public async Task<int> GetMaximumPage(int userId)
+        {
+            return await this.entities.Companies.CountAsync(x => x.CreatedBy == userId);
         }
     }
 }

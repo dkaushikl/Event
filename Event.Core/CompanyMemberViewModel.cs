@@ -1,19 +1,23 @@
 namespace Event.Core
 {
+    using Newtonsoft.Json;
     using System;
 
     public class CompanyMemberViewModel
     {
+        [JsonProperty("companyId")]
         public long CompanyId { get; set; }
 
+        [JsonProperty("createdDate")]
         public DateTime CreatedDate { get; set; }
 
+        [JsonProperty("email")]
         public string Email { get; set; }
 
+        [JsonProperty("id")]
         public long Id { get; set; }
 
-        public bool IsActive { get; set; }
-
+        [JsonProperty("userId")]
         public long UserId { get; set; }
     }
 

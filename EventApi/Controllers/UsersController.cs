@@ -86,29 +86,96 @@
 
         [HttpPost]
         [AllowAnonymous]
-        [Route("ForgotPassword/{email}")]
-        public async Task<IHttpActionResult> ForgotPassword(string email)
+        [Route("api/Users/ForgotPassword")]
+        public async Task<IHttpActionResult> ForgotPassword(ForgotPasswordViewModel objForgotPassword)
         {
-            var objUser = await userRepository.CheckEmailExist(email);
-
-            if (!objUser)
-                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Please Register First", null));
+            IHttpActionResult returnResult;
+            if (this.ForgotPasswordValidation(objForgotPassword, out returnResult))
+            {
+                return returnResult;
+            }
 
             var code = Utility.GetCode();
 
-            //objUser.ForgotPasswordCode = code;
-            //_userRepository.Update(objUser);
-            //await _userRepository.CommitAsync();
+            var result = await this.userRepository.UpdateForgotPasswordCode(code, objForgotPassword.Email);
 
-            //var url = _emailOptions.Value.FrontendUrl + "/resetpassword?Confirmationcode=" + code;
-            //await Utility.Utility.SendMailUsingSendGrid(_emailOptions, objUser.Email,
-            //    "Reset password with Lister exchange",
-            //    Utility.Utility.PopulateForgotPasswordBody(_hostingEnvironment.ContentRootPath, objUser.FirstName,
-            //        url));
+            if (result)
+            {
+                Utility.SendMail(objForgotPassword.Email, "Reset Password With Event manager", Utility.PopulateForgotPasswordBody(objForgotPassword.Email, code));
 
-
-            return Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok,
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok,
                 "New Password Confirmation Link sent. Please Check Your Mail Box.", null));
+            }
+            else
+            {
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User not found.", null));
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("api/Users/ResetPassword")]
+        public async Task<IHttpActionResult> ResetPassword(ResetPasswordViewModel objResetPassword)
+        {
+            IHttpActionResult returnResult;
+            if (this.Validation(new AccountViewModel { Email = objResetPassword.Email, Password = objResetPassword.Password }, out returnResult))
+            {
+                return returnResult;
+            }
+
+            if (this.ResetPasswordValidation(objResetPassword, out returnResult))
+            {
+                return returnResult;
+            }
+
+            var checkEmailExist = await this.userRepository.CheckEmailExist(objResetPassword.Email);
+
+            if (!checkEmailExist)
+            {
+                return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "User not found.", null));
+            }
+
+            var result = await this.userRepository.ResetPassword(objResetPassword);
+
+            if (result)
+            {
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Ok,
+                "Reset Password Successfully.", null));
+            }
+            else
+            {
+                return Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Your code is wrong.", null));
+            }
+        }
+
+        private bool ForgotPasswordValidation(ForgotPasswordViewModel objForgotPassword, out IHttpActionResult returnResult)
+        {
+            if (objForgotPassword.Email.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter email address", null));
+                return true;
+            }
+
+            if (!objForgotPassword.Email.IsEmail())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid email", null));
+                return true;
+            }
+
+            returnResult = null;
+            return false;
+        }
+
+        private bool ResetPasswordValidation(ResetPasswordViewModel objResetPassword, out IHttpActionResult returnResult)
+        {
+            if (objResetPassword.Code.IsEmpty())
+            {
+                returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Code is required.", null));
+                return true;
+            }
+
+            returnResult = null;
+            return false;
         }
 
         private bool RegisterValidation(RegisterViewModel objRegisterViewModel, out IHttpActionResult returnResult)
@@ -131,7 +198,7 @@
                 return true;
             }
 
-            if (objRegisterViewModel.Mobile.IsMobileNo())
+            if (!objRegisterViewModel.Mobile.IsMobileNo())
             {
                 returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter valid mobile no", null));
                 return true;

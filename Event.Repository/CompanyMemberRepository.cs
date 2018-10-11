@@ -24,12 +24,11 @@
         public async Task<bool> AddCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel)
         {
             var objCompanyMember = new CompanyMember
-                                       {
-                                           UserId = objCompanyMemberViewModel.UserId,
-                                           CompanyId = objCompanyMemberViewModel.CompanyId,
-                                           CreatedDate = DateTime.Now,
-                                           IsActive = objCompanyMemberViewModel.IsActive
-                                       };
+            {
+                UserId = objCompanyMemberViewModel.UserId,
+                CompanyId = objCompanyMemberViewModel.CompanyId,
+                CreatedDate = DateTime.Now,
+            };
 
             this.entities.CompanyMembers.Add(objCompanyMember);
             await this.entities.SaveChangesAsync();
@@ -69,7 +68,6 @@
 
             objCompanyMember.CompanyId = objCompanyMemberViewModel.CompanyId;
             objCompanyMember.UserId = objCompanyMemberViewModel.UserId;
-            objCompanyMember.IsActive = objCompanyMemberViewModel.IsActive;
 
             this.entities.Entry(objCompanyMember).State = EntityState.Modified;
             await this.entities.SaveChangesAsync();
@@ -77,14 +75,12 @@
             return true;
         }
 
-        public async Task<DataTable> GetAllCompanyMember(int pageIndex, int pageSize, int companyId)
+        public async Task<DataTable> GetAllCompanyMember(int companyId)
         {
             try
             {
-                var objSqlParameters = new SqlParameter[4];
+                var objSqlParameters = new SqlParameter[1];
                 objSqlParameters[0] = new SqlParameter("@CompanyId", companyId);
-                objSqlParameters[2] = new SqlParameter("@PageIndex", pageIndex);
-                objSqlParameters[3] = new SqlParameter("@PageSize", pageSize);
                 return await SqlHelper.ExecuteDataTableAsync(
                            this.conn,
                            CommandType.StoredProcedure,

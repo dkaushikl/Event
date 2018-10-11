@@ -35,15 +35,11 @@
             var now = DateTime.UtcNow;
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject =
-                                              new ClaimsIdentity(
-                                                  new[]
-                                                      {
-                                                          new Claim(ClaimTypes.Name, userId),
-                                                          new Claim(ClaimTypes.Email, email)
-                                                      }),
-                Expires =
-                                              now.AddMinutes(Convert.ToInt32(expireMinutes)),
+                Subject = new ClaimsIdentity(new[]                                                       {
+                                       new Claim(ClaimTypes.Name, userId),
+                                       new Claim(ClaimTypes.Email, email)
+                                  }),
+                Expires = now.AddMinutes(Convert.ToInt32(21900)),
                 SigningCredentials = new SigningCredentials(
                                               new SymmetricSecurityKey(symmetricKey),
                                               SecurityAlgorithms.HmacSha256Signature)

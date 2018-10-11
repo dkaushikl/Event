@@ -15,6 +15,6 @@
 
         Task<bool> EditCompanyMember(CompanyMemberViewModel objCompanyMemberViewModel);
 
-        Task<DataTable> GetAllCompanyMember(int pageIndex, int pageSize, int companyId);
+        Task<DataTable> GetAllCompanyMember(int companyId);
     }
 }

@@ -5,18 +5,19 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="e7e205d7037244f188d67e8761dc7f36" Name="Diagram1" ZoomLevel="74">
-        <EntityTypeShape EntityType="EventModel.Company" Width="1.5" PointX="3" PointY="2.875" />
-        <EntityTypeShape EntityType="EventModel.CompanyMember" Width="1.5" PointX="5.25" PointY="3.5" />
         <EntityTypeShape EntityType="EventModel.Event" Width="1.5" PointX="8.25" PointY="2.75" />
         <EntityTypeShape EntityType="EventModel.EventMember" Width="1.5" PointX="10.5" PointY="3.5" />
-        <EntityTypeShape EntityType="EventModel.User" Width="1.5" PointX="0.75" PointY="2.875" />
-        <AssociationConnector Association="EventModel.FK_Company_User" />
-        <AssociationConnector Association="EventModel.FK_CompanyMember_Company" />
-        <AssociationConnector Association="EventModel.FK_Event_Company" />
-        <AssociationConnector Association="EventModel.FK_CompanyMember_User" />
-        <AssociationConnector Association="EventModel.FK_Event_User" />
         <AssociationConnector Association="EventModel.FK_EventMember_Event" />
+        <EntityTypeShape EntityType="EventModel.Company" Width="1.5" PointX="3" PointY="3" />
+        <AssociationConnector Association="EventModel.FK_Event_Company" />
+        <EntityTypeShape EntityType="EventModel.User" Width="1.5" PointX="0.75" PointY="2.75" />
+        <EntityTypeShape EntityType="EventModel.ELMAH_Error" Width="1.5" PointX="5.375" PointY="6.75" />
+        <AssociationConnector Association="EventModel.FK_Company_User" />
+        <AssociationConnector Association="EventModel.FK_Event_User" />
         <AssociationConnector Association="EventModel.FK_EventMember_User" />
+        <EntityTypeShape EntityType="EventModel.CompanyMember" Width="1.5" PointX="5.25" PointY="3.625" />
+        <AssociationConnector Association="EventModel.FK_CompanyMember_Company" />
+        <AssociationConnector Association="EventModel.FK_CompanyMember_User" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

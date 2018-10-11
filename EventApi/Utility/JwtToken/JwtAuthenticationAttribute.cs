@@ -10,6 +10,7 @@
 
     public class JwtAuthenticationAttribute : Attribute, IAuthenticationFilter
     {
+        public string Realm { get; set; }
         public bool AllowMultiple => false;
 
         public async Task AuthenticateAsync(HttpAuthenticationContext context, CancellationToken cancellationToken)
@@ -22,11 +23,9 @@
                 return;
             }
 
-            const string ErrorMessage = "The account being accessed does not have sufficient permissions to execute this operation.";
-
             if (string.IsNullOrEmpty(authorization.Parameter))
             {
-                context.ErrorResult = new AuthenticationFailureResult(new { Error = true, Message = ErrorMessage }, request);
+                context.ErrorResult = new AuthenticationFailureResult("Missing Jwt Token", request);
                 return;
             }
 
@@ -35,7 +34,7 @@
 
             if (principal == null)
             {
-                context.ErrorResult = new AuthenticationFailureResult(new { Error = true, Message = ErrorMessage }, request);
+                context.ErrorResult = new AuthenticationFailureResult("Invalid token", request);
             }
             else
             {
@@ -43,7 +42,21 @@
             }
         }
 
-        public Task ChallengeAsync(HttpAuthenticationChallengeContext context, CancellationToken cancellationToken) => Task.FromResult(0);
+        public Task ChallengeAsync(HttpAuthenticationChallengeContext context, CancellationToken cancellationToken)
+        {
+            Challenge(context);
+            return Task.FromResult(0);
+        }
+
+        private void Challenge(HttpAuthenticationChallengeContext context)
+        {
+            string parameter = null;
+
+            if (!string.IsNullOrEmpty(Realm))
+                parameter = "realm=\"" + Realm + "\"";
+
+            context.ChallengeWith("Bearer", parameter);
+        }
 
         protected Task<IPrincipal> AuthenticateJwtToken(string token)
         {

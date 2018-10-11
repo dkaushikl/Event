@@ -13,7 +13,9 @@
 
         Task<bool> EditCompany(CompanyViewModel objCompanyViewModel);
 
-        Task<DataTable> GetAllCompany(int pageIndex, int pageSize, int userId, int? companyId);
+        Task<DataTable> GetAllCompany(int pageIndex, int pageSize, int userId);
+
+        Task<int> GetMaximumPage(int userId);
 
         Task<bool> GetCompanyByName(string name, long companyId);
     }

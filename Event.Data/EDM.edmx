@@ -20,7 +20,6 @@
           <Property Name="Country" Type="nvarchar" MaxLength="200" Nullable="false" />
           <Property Name="CreatedDate" Type="datetime" Nullable="false" />
           <Property Name="CreatedBy" Type="bigint" Nullable="false" />
-          <Property Name="IsActive" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="CompanyMember">
           <Key>
@@ -30,7 +29,34 @@
           <Property Name="CompanyId" Type="bigint" Nullable="false" />
           <Property Name="UserId" Type="bigint" Nullable="false" />
           <Property Name="CreatedDate" Type="datetime" Nullable="false" />
-          <Property Name="IsActive" Type="bit" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Event.dbo.ELMAH_Error' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="ELMAH_Error">
+          <Key>
+            <PropertyRef Name="ErrorId" />
+            <PropertyRef Name="Application" />
+            <PropertyRef Name="Host" />
+            <PropertyRef Name="Type" />
+            <PropertyRef Name="Source" />
+            <PropertyRef Name="Message" />
+            <PropertyRef Name="User" />
+            <PropertyRef Name="StatusCode" />
+            <PropertyRef Name="TimeUtc" />
+            <PropertyRef Name="Sequence" />
+            <PropertyRef Name="AllXml" />
+          </Key>
+          <Property Name="ErrorId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Application" Type="nvarchar" MaxLength="60" Nullable="false" />
+          <Property Name="Host" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Type" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Source" Type="nvarchar" MaxLength="60" Nullable="false" />
+          <Property Name="Message" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="User" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="StatusCode" Type="int" Nullable="false" />
+          <Property Name="TimeUtc" Type="datetime" Nullable="false" />
+          <Property Name="Sequence" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AllXml" Type="ntext" Nullable="false" />
         </EntityType>
         <EntityType Name="Event">
           <Key>
@@ -73,6 +99,7 @@
           <Property Name="Gender" Type="nvarchar" MaxLength="3" />
           <Property Name="CreateDate" Type="datetime" Nullable="false" />
           <Property Name="IsActive" Type="bit" Nullable="false" />
+          <Property Name="ForgotPasswordCode" Type="varchar" MaxLength="255" />
         </EntityType>
         <Association Name="FK_Company_User">
           <End Role="User" Type="Self.User" Multiplicity="1">
@@ -172,6 +199,21 @@
           <EntitySet Name="Event" EntityType="Self.Event" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="EventMember" EntityType="Self.EventMember" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ELMAH_Error" EntityType="Self.ELMAH_Error" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [ELMAH_Error].[ErrorId] AS [ErrorId], 
+    [ELMAH_Error].[Application] AS [Application], 
+    [ELMAH_Error].[Host] AS [Host], 
+    [ELMAH_Error].[Type] AS [Type], 
+    [ELMAH_Error].[Source] AS [Source], 
+    [ELMAH_Error].[Message] AS [Message], 
+    [ELMAH_Error].[User] AS [User], 
+    [ELMAH_Error].[StatusCode] AS [StatusCode], 
+    [ELMAH_Error].[TimeUtc] AS [TimeUtc], 
+    [ELMAH_Error].[Sequence] AS [Sequence], 
+    [ELMAH_Error].[AllXml] AS [AllXml]
+    FROM [dbo].[ELMAH_Error] AS [ELMAH_Error]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_Company_User" Association="Self.FK_Company_User">
             <End Role="User" EntitySet="User" />
             <End Role="Company" EntitySet="Company" />
@@ -209,71 +251,41 @@
               xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation"
               xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="EventEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Companies" EntityType="EventModel.Company" />
-          <EntitySet Name="CompanyMembers" EntityType="EventModel.CompanyMember" />
           <EntitySet Name="Events" EntityType="EventModel.Event" />
           <EntitySet Name="EventMembers" EntityType="EventModel.EventMember" />
-          <EntitySet Name="Users" EntityType="EventModel.User" />
-          <AssociationSet Name="FK_Company_User" Association="EventModel.FK_Company_User">
-            <End Role="User" EntitySet="Users" />
-            <End Role="Company" EntitySet="Companies" />
+          <AssociationSet Name="FK_EventMember_Event" Association="EventModel.FK_EventMember_Event">
+            <End Role="Event" EntitySet="Events" />
+            <End Role="EventMember" EntitySet="EventMembers" />
           </AssociationSet>
-          <AssociationSet Name="FK_CompanyMember_Company" Association="EventModel.FK_CompanyMember_Company">
-            <End Role="Company" EntitySet="Companies" />
-            <End Role="CompanyMember" EntitySet="CompanyMembers" />
-          </AssociationSet>
+          <EntitySet Name="Companies" EntityType="EventModel.Company" />
           <AssociationSet Name="FK_Event_Company" Association="EventModel.FK_Event_Company">
             <End Role="Company" EntitySet="Companies" />
             <End Role="Event" EntitySet="Events" />
           </AssociationSet>
-          <AssociationSet Name="FK_CompanyMember_User" Association="EventModel.FK_CompanyMember_User">
+          <EntitySet Name="Users" EntityType="EventModel.User" />
+          <EntitySet Name="ELMAH_Error" EntityType="EventModel.ELMAH_Error" />
+          <AssociationSet Name="FK_Company_User" Association="EventModel.FK_Company_User">
             <End Role="User" EntitySet="Users" />
-            <End Role="CompanyMember" EntitySet="CompanyMembers" />
+            <End Role="Company" EntitySet="Companies" />
           </AssociationSet>
           <AssociationSet Name="FK_Event_User" Association="EventModel.FK_Event_User">
             <End Role="User" EntitySet="Users" />
             <End Role="Event" EntitySet="Events" />
           </AssociationSet>
-          <AssociationSet Name="FK_EventMember_Event" Association="EventModel.FK_EventMember_Event">
-            <End Role="Event" EntitySet="Events" />
-            <End Role="EventMember" EntitySet="EventMembers" />
-          </AssociationSet>
           <AssociationSet Name="FK_EventMember_User" Association="EventModel.FK_EventMember_User">
             <End Role="User" EntitySet="Users" />
             <End Role="EventMember" EntitySet="EventMembers" />
           </AssociationSet>
+          <EntitySet Name="CompanyMembers" EntityType="EventModel.CompanyMember" />
+          <AssociationSet Name="FK_CompanyMember_Company" Association="EventModel.FK_CompanyMember_Company">
+            <End Role="Company" EntitySet="Companies" />
+            <End Role="CompanyMember" EntitySet="CompanyMembers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CompanyMember_User" Association="EventModel.FK_CompanyMember_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="CompanyMember" EntitySet="CompanyMembers" />
+          </AssociationSet>
         </EntityContainer>
-        <EntityType Name="Company">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="Email" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="MobileNo" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="Address" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="City" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="State" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="Country" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="CreatedBy" Type="Int64" Nullable="false" />
-          <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="User" Relationship="EventModel.FK_Company_User" FromRole="Company" ToRole="User" />
-          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_Company" FromRole="Company" ToRole="CompanyMember" />
-          <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_Company" FromRole="Company" ToRole="Event" />
-        </EntityType>
-        <EntityType Name="CompanyMember">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CompanyId" Type="Int64" Nullable="false" />
-          <Property Name="UserId" Type="Int64" Nullable="false" />
-          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="IsActive" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Company" Relationship="EventModel.FK_CompanyMember_Company" FromRole="CompanyMember" ToRole="Company" />
-          <NavigationProperty Name="User" Relationship="EventModel.FK_CompanyMember_User" FromRole="CompanyMember" ToRole="User" />
-        </EntityType>
         <EntityType Name="Event">
           <Key>
             <PropertyRef Name="Id" />
@@ -290,9 +302,9 @@
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="CreatedBy" Type="Int64" Nullable="false" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_Event" FromRole="Event" ToRole="EventMember" />
           <NavigationProperty Name="Company" Relationship="EventModel.FK_Event_Company" FromRole="Event" ToRole="Company" />
           <NavigationProperty Name="User" Relationship="EventModel.FK_Event_User" FromRole="Event" ToRole="User" />
-          <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_Event" FromRole="Event" ToRole="EventMember" />
         </EntityType>
         <EntityType Name="EventMember">
           <Key>
@@ -306,6 +318,52 @@
           <NavigationProperty Name="Event" Relationship="EventModel.FK_EventMember_Event" FromRole="EventMember" ToRole="Event" />
           <NavigationProperty Name="User" Relationship="EventModel.FK_EventMember_User" FromRole="EventMember" ToRole="User" />
         </EntityType>
+        <Association Name="FK_EventMember_Event">
+          <End Type="EventModel.Event" Role="Event" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="EventModel.EventMember" Role="EventMember" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Event">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="EventMember">
+              <PropertyRef Name="EventId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Company">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="MobileNo" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Address" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="City" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="State" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Country" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatedBy" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_Company" FromRole="Company" ToRole="Event" />
+          <NavigationProperty Name="User" Relationship="EventModel.FK_Company_User" FromRole="Company" ToRole="User" />
+          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_Company" FromRole="Company" ToRole="CompanyMember" />
+        </EntityType>
+        <Association Name="FK_Event_Company">
+          <End Type="EventModel.Company" Role="Company" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="EventModel.Event" Role="Event" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Company">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Event">
+              <PropertyRef Name="CompanyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityType Name="User">
           <Key>
             <PropertyRef Name="Id" />
@@ -320,10 +378,37 @@
           <Property Name="Gender" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <Property Name="ForgotPasswordCode" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Companies" Relationship="EventModel.FK_Company_User" FromRole="User" ToRole="Company" />
-          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_User" FromRole="User" ToRole="CompanyMember" />
           <NavigationProperty Name="Events" Relationship="EventModel.FK_Event_User" FromRole="User" ToRole="Event" />
           <NavigationProperty Name="EventMembers" Relationship="EventModel.FK_EventMember_User" FromRole="User" ToRole="EventMember" />
+          <NavigationProperty Name="CompanyMembers" Relationship="EventModel.FK_CompanyMember_User" FromRole="User" ToRole="CompanyMember" />
+        </EntityType>
+        <EntityType Name="ELMAH_Error">
+          <Key>
+            <PropertyRef Name="ErrorId" />
+            <PropertyRef Name="Application" />
+            <PropertyRef Name="Host" />
+            <PropertyRef Name="Type" />
+            <PropertyRef Name="Source" />
+            <PropertyRef Name="Message" />
+            <PropertyRef Name="User" />
+            <PropertyRef Name="StatusCode" />
+            <PropertyRef Name="TimeUtc" />
+            <PropertyRef Name="Sequence" />
+            <PropertyRef Name="AllXml" />
+          </Key>
+          <Property Name="ErrorId" Type="Guid" Nullable="false" />
+          <Property Name="Application" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="true" />
+          <Property Name="Host" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Type" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Source" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="true" />
+          <Property Name="Message" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="User" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="StatusCode" Type="Int32" Nullable="false" />
+          <Property Name="TimeUtc" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Sequence" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AllXml" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Company_User">
           <End Type="EventModel.User" Role="User" Multiplicity="1">
@@ -339,6 +424,41 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Event_User">
+          <End Type="EventModel.User" Role="User" Multiplicity="1" />
+          <End Type="EventModel.Event" Role="Event" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Event">
+              <PropertyRef Name="CreatedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_EventMember_User">
+          <End Type="EventModel.User" Role="User" Multiplicity="1" />
+          <End Type="EventModel.EventMember" Role="EventMember" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="EventMember">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="CompanyMember">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CompanyId" Type="Int64" Nullable="false" />
+          <Property Name="UserId" Type="Int64" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Company" Relationship="EventModel.FK_CompanyMember_Company" FromRole="CompanyMember" ToRole="Company" />
+          <NavigationProperty Name="User" Relationship="EventModel.FK_CompanyMember_User" FromRole="CompanyMember" ToRole="User" />
+        </EntityType>
         <Association Name="FK_CompanyMember_Company">
           <End Type="EventModel.Company" Role="Company" Multiplicity="1" />
           <End Type="EventModel.CompanyMember" Role="CompanyMember" Multiplicity="*" />
@@ -347,20 +467,6 @@
               <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="CompanyMember">
-              <PropertyRef Name="CompanyId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Event_Company">
-          <End Type="EventModel.Company" Role="Company" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="EventModel.Event" Role="Event" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Company">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Event">
               <PropertyRef Name="CompanyId" />
             </Dependent>
           </ReferentialConstraint>
@@ -379,78 +485,12 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Event_User">
-          <End Type="EventModel.User" Role="User" Multiplicity="1" />
-          <End Type="EventModel.Event" Role="Event" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="User">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Event">
-              <PropertyRef Name="CreatedBy" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_EventMember_Event">
-          <End Type="EventModel.Event" Role="Event" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="EventModel.EventMember" Role="EventMember" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Event">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="EventMember">
-              <PropertyRef Name="EventId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_EventMember_User">
-          <End Type="EventModel.User" Role="User" Multiplicity="1" />
-          <End Type="EventModel.EventMember" Role="EventMember" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="User">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="EventMember">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="EventModelStoreContainer" CdmEntityContainer="EventEntities">
-          <EntitySetMapping Name="Companies">
-            <EntityTypeMapping TypeName="EventModel.Company">
-              <MappingFragment StoreEntitySet="Company">
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
-                <ScalarProperty Name="Country" ColumnName="Country" />
-                <ScalarProperty Name="State" ColumnName="State" />
-                <ScalarProperty Name="City" ColumnName="City" />
-                <ScalarProperty Name="Address" ColumnName="Address" />
-                <ScalarProperty Name="MobileNo" ColumnName="MobileNo" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CompanyMembers">
-            <EntityTypeMapping TypeName="EventModel.CompanyMember">
-              <MappingFragment StoreEntitySet="CompanyMember">
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Events">
             <EntityTypeMapping TypeName="EventModel.Event">
               <MappingFragment StoreEntitySet="Event">
@@ -480,9 +520,26 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Companies">
+            <EntityTypeMapping TypeName="EventModel.Company">
+              <MappingFragment StoreEntitySet="Company">
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="State" ColumnName="State" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="MobileNo" ColumnName="MobileNo" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="EventModel.User">
               <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="ForgotPasswordCode" ColumnName="ForgotPasswordCode" />
                 <ScalarProperty Name="IsActive" ColumnName="IsActive" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
                 <ScalarProperty Name="Gender" ColumnName="Gender" />
@@ -492,6 +549,33 @@
                 <ScalarProperty Name="Username" ColumnName="Username" />
                 <ScalarProperty Name="Lastname" ColumnName="Lastname" />
                 <ScalarProperty Name="Firstname" ColumnName="Firstname" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ELMAH_Error">
+            <EntityTypeMapping TypeName="EventModel.ELMAH_Error">
+              <MappingFragment StoreEntitySet="ELMAH_Error">
+                <ScalarProperty Name="AllXml" ColumnName="AllXml" />
+                <ScalarProperty Name="Sequence" ColumnName="Sequence" />
+                <ScalarProperty Name="TimeUtc" ColumnName="TimeUtc" />
+                <ScalarProperty Name="StatusCode" ColumnName="StatusCode" />
+                <ScalarProperty Name="User" ColumnName="User" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Source" ColumnName="Source" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Host" ColumnName="Host" />
+                <ScalarProperty Name="Application" ColumnName="Application" />
+                <ScalarProperty Name="ErrorId" ColumnName="ErrorId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CompanyMembers">
+            <EntityTypeMapping TypeName="EventModel.CompanyMember">
+              <MappingFragment StoreEntitySet="CompanyMember">
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="CompanyId" ColumnName="CompanyId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

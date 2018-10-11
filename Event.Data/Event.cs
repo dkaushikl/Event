@@ -33,9 +33,9 @@ namespace Event.Data
         public long CreatedBy { get; set; }
         public bool IsActive { get; set; }
     
-        public virtual Company Company { get; set; }
-        public virtual User User { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<EventMember> EventMembers { get; set; }
+        public virtual Company Company { get; set; }
+        public virtual User User { get; set; }
     }
 }

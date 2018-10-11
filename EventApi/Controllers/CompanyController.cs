@@ -86,19 +86,32 @@
         [Authorize]
         [HttpGet]
         [Route("api/Company/GetAllCompany")]
-        public async Task<IHttpActionResult> GetAllCompany(int pageIndex, int pageSize, int? companyId)
+        public async Task<IHttpActionResult> GetAllCompany(int pageSize, int pageIndex)
         {
             var objResult = await this.companyRepository.GetAllCompany(
                                 pageIndex,
                                 pageSize,
-                                Convert.ToInt32(this.UserId),
-                                companyId);
+                                Convert.ToInt32(this.UserId));
 
             var data = objResult.Columns.Count > 0
                            ? Utility.ConvertDataTable<CompanyDisplayViewModel>(objResult).ToList()
                            : null;
 
-            return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", data));
+            var maximumPage = await this.companyRepository.GetMaximumPage(Convert.ToInt32(this.UserId));
+
+            var response = new { data, page = maximumPage };
+
+            return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", response));
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("api/Company/GetMaximumPage")]
+        public async Task<IHttpActionResult> GetMaximumPage()
+        {
+            var maximumPage = await this.companyRepository.GetMaximumPage(Convert.ToInt32(this.UserId));
+
+            return this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Get Data Successfully!!", maximumPage));
         }
 
         private bool Validation(CompanyViewModel objCompanyViewModel, out IHttpActionResult returnResult)
@@ -121,7 +134,7 @@
                 return true;
             }
 
-            if (!objCompanyViewModel.MobileNo.IsEmpty())
+            if (objCompanyViewModel.MobileNo.IsEmpty())
             {
                 returnResult = this.Ok(ApiResponse.SetResponse(ApiResponseStatus.Error, "Enter mobile no", null));
                 return true;

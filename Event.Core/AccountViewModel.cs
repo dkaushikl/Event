@@ -28,4 +28,22 @@ namespace Event.Core
         [JsonProperty("password")]
         public string Password { get; set; }
     }
+
+    public class ForgotPasswordViewModel
+    {
+        [JsonProperty("email")]
+        public string Email { get; set; }
+    }
+
+    public class ResetPasswordViewModel
+    {
+        [JsonProperty("email")]
+        public string Email { get; set; }
+
+        [JsonProperty("code")]
+        public string Code { get; set; }
+
+        [JsonProperty("password")]
+        public string Password { get; set; }
+    }
 }

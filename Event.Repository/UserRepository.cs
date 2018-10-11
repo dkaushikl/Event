@@ -45,5 +45,40 @@
             await this.entities.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> UpdateForgotPasswordCode(string forgotCode, string email)
+        {
+            var objUser = await this.entities.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower());
+
+            if(objUser == null)
+            {
+                return false;
+            }
+
+            objUser.ForgotPasswordCode = forgotCode;
+
+            this.entities.Entry(objUser).State = EntityState.Modified;
+            await this.entities.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> ResetPassword(ResetPasswordViewModel objResetPassword)
+        {
+            var objUser = await this.entities.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == objResetPassword.Email.ToLower() && x.ForgotPasswordCode == objResetPassword.Code);
+
+            if (objUser == null)
+            {
+                return false;
+            }
+
+            objUser.Password = EncryptDecrypt.Encrypt(objResetPassword.Password);
+            objUser.ForgotPasswordCode = string.Empty;
+
+            this.entities.Entry(objUser).State = EntityState.Modified;
+            await this.entities.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
